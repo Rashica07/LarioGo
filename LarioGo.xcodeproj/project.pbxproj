@@ -7,12 +7,30 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		CE1CBAE42FFA9088001295E4 /* LarioGo.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = LarioGo.xcodeproj; sourceTree = "<group>"; };
+		CE1CBB8A2FFAA6F1001295E4 /* LarioGo.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = LarioGo.xcodeproj; sourceTree = "<group>"; };
 		CE5192502FF1D2F8009EBEC3 /* LarioGo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LarioGo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE5192A82FF1E012009EBEC3 /* LarioGo.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = LarioGo.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CE1CBAEF2FFA9090001295E4 /* Exceptions for "LarioGo" folder in "LarioGo" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				LarioGoTests/LarioGoTests.swift,
+				LarioGoUITests/LarioGoUITests.swift,
+				LarioGoUITests/LarioGoUITestsLaunchTests.swift,
+			);
+			target = CE51924F2FF1D2F8009EBEC3 /* LarioGo */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CE5192522FF1D2F8009EBEC3 /* LarioGo */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CE1CBAEF2FFA9090001295E4 /* Exceptions for "LarioGo" folder in "LarioGo" target */,
+			);
 			path = LarioGo;
 			sourceTree = "<group>";
 		};
@@ -29,6 +47,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CE1CBAE52FFA9088001295E4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CE1CBB8D2FFAA6F1001295E4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CE5192472FF1D2F8009EBEC3 = {
 			isa = PBXGroup;
 			children = (
@@ -41,6 +73,13 @@
 			isa = PBXGroup;
 			children = (
 				CE5192502FF1D2F8009EBEC3 /* LarioGo.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CE5192A92FF1E012009EBEC3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -82,6 +121,7 @@
 				TargetAttributes = {
 					CE51924F2FF1D2F8009EBEC3 = {
 						CreatedOnToolsVersion = 26.3;
+						LastSwiftMigration = 2630;
 					};
 				};
 			};
@@ -97,6 +137,20 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CE5192512FF1D2F8009EBEC3 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = CE5192A92FF1E012009EBEC3 /* Products */;
+					ProjectRef = CE5192A82FF1E012009EBEC3 /* LarioGo.xcodeproj */;
+				},
+				{
+					ProductGroup = CE1CBAE52FFA9088001295E4 /* Products */;
+					ProjectRef = CE1CBAE42FFA9088001295E4 /* LarioGo.xcodeproj */;
+				},
+				{
+					ProductGroup = CE1CBB8D2FFAA6F1001295E4 /* Products */;
+					ProjectRef = CE1CBB8A2FFAA6F1001295E4 /* LarioGo.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				CE51924F2FF1D2F8009EBEC3 /* LarioGo */,
@@ -177,7 +231,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -234,7 +288,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -249,6 +303,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
@@ -269,6 +324,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -280,6 +336,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;

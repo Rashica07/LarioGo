@@ -83,6 +83,8 @@ struct SiteDetailView: View {
                 stat(value: site.visitDuration, label: "Duration", symbol: "clock.fill")
                 stat(value: site.category.rawValue, label: "Type", symbol: site.category.symbol)
             }
+            
+            AudioGuidePlayer(textToSpeak: site.about, siteName: site.name)
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("About").font(.title3.bold()).foregroundStyle(Color.inkPrimary)
@@ -195,6 +197,7 @@ struct ExperienceBookingSheet: View {
             Spacer()
             Button {
                 Haptics.success()
+                ItineraryManager.shared.add(siteID: site.id, date: date)
                 dismiss()
             } label: {
                 Text("Add to my trip")

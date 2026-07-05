@@ -1,5 +1,13 @@
 //
 //  LarioGoTests.swift
+//  LarioGo
+//
+//  Created by user on 29.6.26.
+//
+
+
+//
+//  LarioGoTests.swift
 //  LarioGoTests
 //
 //  Created by Rork on June 22, 2026.
@@ -15,3 +23,4 @@ struct LarioGoTests {
     }
 
 }
+

@@ -30,7 +30,12 @@ struct ProfileView: View {
                     Divider().padding(.leading, 52)
                     row(symbol: "heart.fill", title: "Saved Places", trailing: "5")
                     Divider().padding(.leading, 52)
-                    row(symbol: "calendar", title: "Itinerary", trailing: "3 days")
+                    NavigationLink {
+                        ItineraryPlannerView()
+                    } label: {
+                        row(symbol: "calendar", title: "Itinerary", trailing: nil)
+                    }
+                    .buttonStyle(.plain)
                 }
 
                 card(title: "Preferences") {

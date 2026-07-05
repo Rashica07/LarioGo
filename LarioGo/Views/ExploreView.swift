@@ -15,6 +15,7 @@ import SwiftUI
 
 struct ExploreView: View {
     @State private var selectedCategory: SiteCategory? = nil
+    @State private var showingARScanner = false
     let onSelectSite: (Site) -> Void
 
     private let sites = TourismData.sites
@@ -74,19 +75,43 @@ struct ExploreView: View {
             .padding(.top, 8)
         }
         .background(Theme.sand)
+        .fullScreenCover(isPresented: $showingARScanner) {
+            ARViewfinder()
+        }
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Welcome to")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(Theme.teal)
-            Text("Lecco & Lake Como")
-                .font(.largeTitle.bold())
-                .foregroundStyle(Theme.azure)
-            Text("Your official guide to the Lario.")
-                .font(.body)
-                .foregroundStyle(Color.inkSecondary)
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Welcome to")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.teal)
+                Text("Lecco & Lake Como")
+                    .font(.largeTitle.bold())
+                    .foregroundStyle(Theme.azure)
+                Text("Your official guide to the Lario.")
+                    .font(.body)
+                    .foregroundStyle(Color.inkSecondary)
+            }
+            
+            Spacer()
+            
+            Button {
+                Haptics.tap()
+                showingARScanner = true
+            } label: {
+                VStack(spacing: 4) {
+                    Image(systemName: "arkit")
+                        .font(.title2)
+                    Text("AR Scan")
+                        .font(.caption2.bold())
+                }
+                .foregroundStyle(.white)
+                .frame(width: 62, height: 62)
+                .background(Theme.lakeGradient, in: .circle)
+                .shadow(color: Theme.teal.opacity(0.3), radius: 6, x: 0, y: 3)
+            }
+            .buttonStyle(.pressableScale(0.92))
         }
         .padding(.horizontal, 20)
     }
