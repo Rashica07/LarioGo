@@ -125,6 +125,10 @@ private func configureRoutesAndMigrations(_ app: Application) async throws {
     if app.environment != .production || Environment.get("SEED_CONTENT") == "true" {
         app.migrations.add(SeedPlaces())
     }
+    // Real OpenStreetMap places (ODbL). Runs in every environment including
+    // production — unlike the invented sample content, this is genuine data and
+    // is what real deployments should serve.
+    app.migrations.add(ImportOSMPlaces())
 
     if Environment.get("AUTO_MIGRATE") == "true" || app.environment == .testing {
         try await app.autoMigrate()

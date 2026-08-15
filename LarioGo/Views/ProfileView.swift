@@ -85,6 +85,15 @@ struct ProfileView: View {
                 // Rows that had no destination have been removed rather than
                 // left as dead chevrons. They return when there is something
                 // behind them.
+                card(title: "About") {
+                    NavigationLink {
+                        AttributionView()
+                    } label: {
+                        row(symbol: "info.circle.fill", title: "Data & credits", trailing: nil)
+                    }
+                    .buttonStyle(.plain)
+                }
+
                 card(title: "Developer") {
                     NavigationLink {
                         DataSourceSettingsView()
