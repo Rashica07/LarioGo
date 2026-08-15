@@ -116,7 +116,34 @@ discriminator serving `/attractions`, `/restaurants`, `/events` and `/places`; f
 category/rating/price/cuisine/tag/region/featured, text search, bounding-box + haversine
 geosearch, six sort orders, enveloped pagination, strict 400s on bad input, and 20 seed
 places. 40 tests.
-**Next: Phase 3 — connect the existing SwiftUI frontend.** Still entirely unverified.
+**Phase 3 — service layer + mock mode: WRITTEN, UNCOMPILED.** Service protocols
+(`PlaceServing`, `AuthServing`, `FavoriteServing`, `ItineraryServing`), a transport-agnostic
+`ServiceError` with user-facing copy, and full mock implementations.
+**Next: API client + wiring the existing SwiftUI views to ViewModels.** Still unverified.
+
+### Mock mode — a deliberate, retained feature (per instruction 2026-08-15)
+`DataSourceMode` (`mock` / `live` / `liveWithMockFallback`) **stays until v1.0 has licensed
+content and signed sponsors.** Default is `.mock`. It is not scaffolding to delete once the
+API works — it is how demos, screenshots, offline development and UI tests stay reliable.
+
+`MockCatalog` holds **49 places** across Lecco, Varenna, Bellagio, Lenno, Tremezzo, Colico,
+Como, Brunate, Menaggio, Cernobbio, Bellano and Valsassina — every kind and category, the
+full price range, rated and unrated entries, entries with and without images, and events
+spread across past / this-week / months-out. Plus **6 test personas** (solo, couple, family,
+hiker, foodie, brand-new account), a pre-built 3-day itinerary and pre-saved favourites.
+
+Mock identifiers are **deterministic** (`stableID`), the same class of bug as Bug #6 — random
+IDs would orphan every saved favourite and itinerary on relaunch. Guarded by a test.
+
+`MockBehaviour` forces the states that otherwise never get exercised: latency, failure rate,
+a specific forced error, and empty-results mode. Randomness is injectable so failure
+injection is deterministic under test.
+
+**Truthfulness rule, enforced by tests:** attractions and landmarks are real, publicly
+documented places. All dining, events and experiences are invented, must carry the
+`sample-data` tag, and must not fabricate phone numbers or websites.
+`AppConfiguration.mustLabelContentAsSample` is true in every mode except `.live`, including
+fallback — where the user otherwise could not tell.
 
 ---
 
@@ -309,7 +336,7 @@ Debug and Release configurations.
 | Itineraries | Local-only, **broken by Bug #6** |
 | Offline | UserDefaults itineraries only |
 | Notifications | **Not started** |
-| Tests | 12 iOS + 55 backend + ~100 LarioCore. **None ever executed.** |
+| Tests | 12 iOS + 55 backend + ~150 LarioCore. **None ever executed.** |
 | Deployment | Dockerfile + docker-compose + deploy docs written. Never built. |
 | Last successful build | **Never.** CI pushed 2026-08-15 and rejected: billing locked. |
 | Last successful test run | **Never.** Only the Python tooling checks pass locally. |
