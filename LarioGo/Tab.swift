@@ -30,8 +30,14 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             NavigationStack(path: $explorePath) {
-                ExploreView { site in explorePath.append(site) }
-                    .withPlaceDestinations(favorites: favorites)
+                ExploreView(
+                    placeService: environment.placeService,
+                    locationProvider: FixedLocationProvider.lecco,
+                    favorites: favorites
+                ) { place in
+                    explorePath.append(place)
+                }
+                .withPlaceDestinations(favorites: favorites)
             }
             .tabItem { Label("Explore", systemImage: "sparkles") }
             .tag(Tab.explore)

@@ -2,117 +2,149 @@
 //  FeaturedCard.swift
 //  LarioGo
 //
-//  Created by user on 29.6.26.
+//  Cards used across discovery surfaces.
+//
+//  SiteRowCard and EventCard lived here and were removed when Explore moved to
+//  LarioCore.Place — they had no remaining call sites. They are in git history
+//  if the Site-based versions are ever needed again.
 //
 
-
-//
-//  Cards.swift
-//  LarioGo
-//
-
+import LarioCore
 import SwiftUI
 
 /// Large hero card used in the featured carousel.
 struct FeaturedCard: View {
-    let site: Site
+    let result: PlaceResult
+    var showsSampleBadge = false
+
+    private var place: Place { result.place }
 
     var body: some View {
-        SiteImage(imageName: site.imageName, symbol: site.category.symbol, cornerRadius: Theme.Radius.card)
-            .frame(width: 300, height: 380)
-            .overlay {
-                LinearGradient(
-                    colors: [.clear, .clear, .black.opacity(0.75)],
-                    startPoint: .top, endPoint: .bottom
-                )
-            }
-            .overlay(alignment: .topLeading) { CategoryTag(category: site.category).padding(16) }
-            .overlay(alignment: .bottomLeading) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(site.name)
-                        .font(.title2.bold())
-                        .foregroundStyle(.white)
-                    Text(site.tagline)
+        SiteImage(
+            imageName: place.primaryImageName ?? "",
+            symbol: place.category.symbol,
+            cornerRadius: Theme.Radius.card
+        )
+        .frame(width: 300, height: 380)
+        .overlay {
+            LinearGradient(
+                colors: [.clear, .clear, .black.opacity(0.75)],
+                startPoint: .top, endPoint: .bottom
+            )
+        }
+        .overlay(alignment: .topLeading) {
+            Label(place.category.displayName, systemImage: place.category.symbol)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(.ultraThinMaterial, in: .capsule)
+                .padding(16)
+        }
+        .overlay(alignment: .bottomLeading) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(place.name)
+                    .font(.title2.bold())
+                    .foregroundStyle(.white)
+                    .lineLimit(2)
+
+                if !place.tagline.isEmpty {
+                    Text(place.tagline)
                         .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.85))
-                    HStack(spacing: 12) {
-                        Label(String(format: "%.1f", site.rating), systemImage: "star.fill")
-                        Label(site.visitDuration, systemImage: "clock")
-                    }
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.9))
-                    .padding(.top, 2)
+                        .lineLimit(2)
                 }
-                .padding(18)
+
+                HStack(spacing: 12) {
+                    if let rating = place.ratingDisplay {
+                        Label(rating, systemImage: "star.fill")
+                    } else {
+                        Text("New")
+                    }
+                    if let duration = place.visitDuration {
+                        Label(duration, systemImage: "clock")
+                    }
+                    if let distance = result.formattedDistance {
+                        Label(distance, systemImage: "location.fill")
+                    }
+                }
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.white.opacity(0.9))
+                .padding(.top, 2)
+
+                if showsSampleBadge && place.isSampleContent {
+                    SampleContentBadge().padding(.top, 2)
+                }
             }
-            .clipShape(.rect(cornerRadius: Theme.Radius.card))
-            .shadow(color: Theme.azure.opacity(0.25), radius: 14, x: 0, y: 8)
+            .padding(18)
+            // Leaves room for the favourite button in the top-right corner.
+            .padding(.trailing, 40)
+        }
+        .clipShape(.rect(cornerRadius: Theme.Radius.card))
+        .shadow(color: Theme.azure.opacity(0.25), radius: 14, x: 0, y: 8)
+        .accessibilityElement(children: .combine)
     }
 }
 
-/// Compact horizontal card for the "Discover more" rail.
-struct SiteRowCard: View {
-    let site: Site
+/// Compact card for the horizontal discovery rails.
+struct PlaceCardSmall: View {
+    let result: PlaceResult
+    var showsSampleBadge = false
+
+    private var place: Place { result.place }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            SiteImage(imageName: site.imageName, symbol: site.category.symbol)
-                .frame(width: 200, height: 130)
-                .clipShape(.rect(cornerRadius: Theme.Radius.chip))
+            SiteImage(
+                imageName: place.primaryImageName ?? "",
+                symbol: place.category.symbol
+            )
+            .frame(width: 200, height: 130)
+            .clipShape(.rect(cornerRadius: Theme.Radius.chip))
+
             VStack(alignment: .leading, spacing: 4) {
-                Text(site.name)
+                Text(place.name)
                     .font(.headline)
                     .foregroundStyle(Color.inkPrimary)
                     .lineLimit(1)
-                Text(site.category.rawValue)
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(Theme.teal)
+
+                HStack(spacing: 8) {
+                    Text(place.category.displayName)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(Theme.teal)
+                    if let distance = result.formattedDistance {
+                        Text("· \(distance)")
+                            .font(.caption)
+                            .foregroundStyle(Color.inkSecondary)
+                    }
+                }
+
+                // Events lead with when, not what — that is the question the
+                // user is actually asking on this rail.
+                if let schedule = place.schedule {
+                    Label(
+                        EventDateFormatter.relative(schedule.startDate),
+                        systemImage: "calendar"
+                    )
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(Theme.coral)
+                }
+
+                if showsSampleBadge && place.isSampleContent {
+                    SampleContentBadge()
+                }
             }
             .padding(.top, 10)
             .padding(.horizontal, 4)
         }
         .frame(width: 200, alignment: .leading)
+        .accessibilityElement(children: .combine)
     }
 }
 
-/// Calendar-style event card.
-struct EventCard: View {
-    let event: TourEvent
-
-    var body: some View {
-        HStack(spacing: 0) {
-            VStack(spacing: 2) {
-                Text(event.dayString).font(.title.bold())
-                Text(event.monthString).font(.caption.weight(.bold))
-            }
-            .foregroundStyle(.white)
-            .frame(width: 76)
-            .frame(maxHeight: .infinity)
-            .background(Theme.lakeGradient)
-
-            VStack(alignment: .leading, spacing: 5) {
-                Text(event.category.uppercased())
-                    .font(.caption2.weight(.bold))
-                    .foregroundStyle(Theme.teal)
-                Text(event.title)
-                    .font(.headline)
-                    .foregroundStyle(Color.inkPrimary)
-                    .lineLimit(2)
-                Label(event.location, systemImage: "mappin.circle.fill")
-                    .font(.caption)
-                    .foregroundStyle(Color.inkSecondary)
-            }
-            .padding(14)
-            Spacer(minLength: 0)
-        }
-        .frame(width: 290, height: 110)
-        .background(.white)
-        .clipShape(.rect(cornerRadius: Theme.Radius.card))
-        .shadow(color: Theme.azure.opacity(0.12), radius: 8, x: 0, y: 4)
-    }
-}
-
-/// Pill showing a site's category with its glyph.
+/// Pill showing a legacy `Site` category with its glyph.
+///
+/// Still used by SiteDetailView, which has not moved to `Place` yet.
 struct CategoryTag: View {
     let category: SiteCategory
 

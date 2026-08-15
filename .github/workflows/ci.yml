@@ -16,7 +16,11 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # NOT cancel-in-progress. The backend build takes ~8 minutes and pushes during
+  # active work arrive faster than that, so superseding runs kept cancelling it
+  # and its errors were never reported. Letting runs finish costs little: the
+  # three Linux jobs bill at 1x, and the expensive macOS job is gated separately.
+  cancel-in-progress: false
 
 jobs:
   # ---------------------------------------------------------------------
