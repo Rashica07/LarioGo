@@ -6,7 +6,10 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # Every branch, not just main. Because nothing compiles on the Windows dev
+    # machine, a feature branch that only builds after merge is useless — the
+    # whole point is to find compile errors before they reach main.
+    branches: ['**']
   pull_request:
     branches: [main]
   workflow_dispatch:
