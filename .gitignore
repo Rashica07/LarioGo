@@ -1,4 +1,44 @@
-node_modules
+# --- Xcode ---
+build/
+DerivedData/
+*.xcuserstate
+*.xcuserdatad/
+xcuserdata/
+*.xcresult
+TestResults.xcresult/
+
+# --- Swift Package Manager ---
+.build/
+.swiftpm/
+Package.resolved
+
+# --- Secrets / local config ---
 .env
-.expo
-.rork
+.env.*
+!.env.example
+Config.swift
+*.p12
+*.mobileprovision
+
+# --- macOS / editors ---
+.DS_Store
+*.swp
+*~
+.vscode/
+.idea/
+
+# --- Stray React Native / Expo artifacts (this is a native Swift project) ---
+node_modules/
+.expo/
+.bundle/
+babel.config.js
+metro.config.js
+package.json
+package-lock.json
+tsconfig.json
+app.json
+
+# --- Tooling ---
+.rork/
+__pycache__/
+*.pyc

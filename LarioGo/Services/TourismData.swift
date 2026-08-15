@@ -18,8 +18,24 @@ import Foundation
 
 /// Static seed content for the Lecco / Lake Como MVP.
 nonisolated enum TourismData {
+    /// Stable identifiers for seed content.
+    ///
+    /// These MUST stay fixed. `Site.id` defaults to a fresh `UUID()`, so without
+    /// pinned values every relaunch mints new identifiers and anything persisted
+    /// against them — itineraries, favourites — silently resolves to nothing.
+    private enum SeedID {
+        static let basilica = UUID(uuidString: "A1000000-0000-4000-8000-000000000001")!
+        static let erna = UUID(uuidString: "A1000000-0000-4000-8000-000000000002")!
+        static let lungolago = UUID(uuidString: "A1000000-0000-4000-8000-000000000003")!
+        static let piona = UUID(uuidString: "A1000000-0000-4000-8000-000000000004")!
+        static let resegone = UUID(uuidString: "A1000000-0000-4000-8000-000000000005")!
+        static let varenna = UUID(uuidString: "A1000000-0000-4000-8000-000000000006")!
+        static let trattoria = UUID(uuidString: "A1000000-0000-4000-8000-000000000007")!
+    }
+
     static let sites: [Site] = [
         Site(
+            id: SeedID.basilica,
             name: "Basilica di San Nicolò",
             tagline: "Lecco's soaring bell tower",
             category: .landmark,
@@ -30,6 +46,7 @@ nonisolated enum TourismData {
             rating: 4.7, visitDuration: "30–45 min", isFeatured: true
         ),
         Site(
+            id: SeedID.erna,
             name: "Piani d'Erna",
             tagline: "Alpine balcony over the lake",
             category: .viewpoint,
@@ -40,6 +57,7 @@ nonisolated enum TourismData {
             rating: 4.8, visitDuration: "Half day", isFeatured: true
         ),
         Site(
+            id: SeedID.lungolago,
             name: "Lungolago di Lecco",
             tagline: "The promenade of Manzoni",
             category: .culture,
@@ -50,6 +68,7 @@ nonisolated enum TourismData {
             rating: 4.6, visitDuration: "1 h", isFeatured: true
         ),
         Site(
+            id: SeedID.piona,
             name: "Abbazia di Piona",
             tagline: "Romanesque cloister on the shore",
             category: .culture,
@@ -60,6 +79,7 @@ nonisolated enum TourismData {
             rating: 4.7, visitDuration: "1 h"
         ),
         Site(
+            id: SeedID.resegone,
             name: "Resegone Ridge",
             tagline: "The jagged crown of Lecco",
             category: .nature,
@@ -70,6 +90,7 @@ nonisolated enum TourismData {
             rating: 4.9, visitDuration: "Full day"
         ),
         Site(
+            id: SeedID.varenna,
             name: "Varenna & Villa Monastero",
             tagline: "Lakeside botanical gardens",
             category: .nature,
@@ -80,6 +101,7 @@ nonisolated enum TourismData {
             rating: 4.8, visitDuration: "2–3 h"
         ),
         Site(
+            id: SeedID.trattoria,
             name: "Trattoria del Lago",
             tagline: "Missoltini & local risotto",
             category: .food,

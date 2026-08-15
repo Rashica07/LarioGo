@@ -6,32 +6,43 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXFileReference section */
-		CE1CBAE42FFA9088001295E4 /* LarioGo.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = LarioGo.xcodeproj; sourceTree = "<group>"; };
-		CE1CBB8A2FFAA6F1001295E4 /* LarioGo.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = LarioGo.xcodeproj; sourceTree = "<group>"; };
-		CE5192502FF1D2F8009EBEC3 /* LarioGo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LarioGo.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		CE5192A82FF1E012009EBEC3 /* LarioGo.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = LarioGo.xcodeproj; sourceTree = "<group>"; };
-/* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		CE1CBAEF2FFA9090001295E4 /* Exceptions for "LarioGo" folder in "LarioGo" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				LarioGoTests/LarioGoTests.swift,
-				LarioGoUITests/LarioGoUITests.swift,
-				LarioGoUITests/LarioGoUITestsLaunchTests.swift,
-			);
-			target = CE51924F2FF1D2F8009EBEC3 /* LarioGo */;
+/* Begin PBXContainerItemProxy section */
+		CEAA00000000000000000111 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CE5192482FF1D2F8009EBEC3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CE51924F2FF1D2F8009EBEC3;
+			remoteInfo = LarioGo;
 		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CEAA00000000000000000112 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CE5192482FF1D2F8009EBEC3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CE51924F2FF1D2F8009EBEC3;
+			remoteInfo = LarioGo;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		CE5192502FF1D2F8009EBEC3 /* LarioGo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LarioGo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CEAA000000000000000000A1 /* LarioGoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LarioGoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CEAA000000000000000000A2 /* LarioGoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LarioGoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CE5192522FF1D2F8009EBEC3 /* LarioGo */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				CE1CBAEF2FFA9090001295E4 /* Exceptions for "LarioGo" folder in "LarioGo" target */,
-			);
 			path = LarioGo;
+			sourceTree = "<group>";
+		};
+		CEAA000000000000000000B1 /* LarioGoTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = LarioGoTests;
+			sourceTree = "<group>";
+		};
+		CEAA000000000000000000B2 /* LarioGoUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = LarioGoUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -44,27 +55,29 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CEAA000000000000000000C2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CEAA000000000000000000C5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		CE1CBAE52FFA9088001295E4 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		CE1CBB8D2FFAA6F1001295E4 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		CE5192472FF1D2F8009EBEC3 = {
 			isa = PBXGroup;
 			children = (
 				CE5192522FF1D2F8009EBEC3 /* LarioGo */,
+				CEAA000000000000000000B1 /* LarioGoTests */,
+				CEAA000000000000000000B2 /* LarioGoUITests */,
 				CE5192512FF1D2F8009EBEC3 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -73,13 +86,8 @@
 			isa = PBXGroup;
 			children = (
 				CE5192502FF1D2F8009EBEC3 /* LarioGo.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		CE5192A92FF1E012009EBEC3 /* Products */ = {
-			isa = PBXGroup;
-			children = (
+				CEAA000000000000000000A1 /* LarioGoTests.xctest */,
+				CEAA000000000000000000A2 /* LarioGoUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -109,6 +117,52 @@
 			productReference = CE5192502FF1D2F8009EBEC3 /* LarioGo.app */;
 			productType = "com.apple.product-type.application";
 		};
+		CEAA000000000000000000D1 /* LarioGoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CEAA000000000000000000F1 /* Build configuration list for PBXNativeTarget "LarioGoTests" */;
+			buildPhases = (
+				CEAA000000000000000000C1 /* Sources */,
+				CEAA000000000000000000C2 /* Frameworks */,
+				CEAA000000000000000000C3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CEAA00000000000000000101 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CEAA000000000000000000B1 /* LarioGoTests */,
+			);
+			name = LarioGoTests;
+			packageProductDependencies = (
+			);
+			productName = LarioGoTests;
+			productReference = CEAA000000000000000000A1 /* LarioGoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		CEAA000000000000000000D2 /* LarioGoUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CEAA000000000000000000F2 /* Build configuration list for PBXNativeTarget "LarioGoUITests" */;
+			buildPhases = (
+				CEAA000000000000000000C4 /* Sources */,
+				CEAA000000000000000000C5 /* Frameworks */,
+				CEAA000000000000000000C6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CEAA00000000000000000102 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CEAA000000000000000000B2 /* LarioGoUITests */,
+			);
+			name = LarioGoUITests;
+			packageProductDependencies = (
+			);
+			productName = LarioGoUITests;
+			productReference = CEAA000000000000000000A2 /* LarioGoUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -122,6 +176,14 @@
 					CE51924F2FF1D2F8009EBEC3 = {
 						CreatedOnToolsVersion = 26.3;
 						LastSwiftMigration = 2630;
+					};
+					CEAA000000000000000000D1 = {
+						CreatedOnToolsVersion = 26.3;
+						TestTargetID = CE51924F2FF1D2F8009EBEC3;
+					};
+					CEAA000000000000000000D2 = {
+						CreatedOnToolsVersion = 26.3;
+						TestTargetID = CE51924F2FF1D2F8009EBEC3;
 					};
 				};
 			};
@@ -137,29 +199,31 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CE5192512FF1D2F8009EBEC3 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = CE5192A92FF1E012009EBEC3 /* Products */;
-					ProjectRef = CE5192A82FF1E012009EBEC3 /* LarioGo.xcodeproj */;
-				},
-				{
-					ProductGroup = CE1CBAE52FFA9088001295E4 /* Products */;
-					ProjectRef = CE1CBAE42FFA9088001295E4 /* LarioGo.xcodeproj */;
-				},
-				{
-					ProductGroup = CE1CBB8D2FFAA6F1001295E4 /* Products */;
-					ProjectRef = CE1CBB8A2FFAA6F1001295E4 /* LarioGo.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				CE51924F2FF1D2F8009EBEC3 /* LarioGo */,
+				CEAA000000000000000000D1 /* LarioGoTests */,
+				CEAA000000000000000000D2 /* LarioGoUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		CE51924E2FF1D2F8009EBEC3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CEAA000000000000000000C3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CEAA000000000000000000C6 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -176,7 +240,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CEAA000000000000000000C1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CEAA000000000000000000C4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CEAA00000000000000000101 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CE51924F2FF1D2F8009EBEC3 /* LarioGo */;
+			targetProxy = CEAA00000000000000000111 /* PBXContainerItemProxy */;
+		};
+		CEAA00000000000000000102 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CE51924F2FF1D2F8009EBEC3 /* LarioGo */;
+			targetProxy = CEAA00000000000000000112 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		CE51925B2FF1D2FB009EBEC3 /* Debug */ = {
@@ -308,6 +399,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "LarioGo uses the camera to recognise landmarks around you in AR.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LarioGo uses your location to show attractions, restaurants and events near you.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -341,6 +434,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "LarioGo uses the camera to recognise landmarks around you in AR.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LarioGo uses your location to show attractions, restaurants and events near you.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -363,6 +458,84 @@
 			};
 			name = Release;
 		};
+		CEAA000000000000000000E1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = traversar.LarioGoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LarioGo.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LarioGo";
+			};
+			name = Debug;
+		};
+		CEAA000000000000000000E2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = traversar.LarioGoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LarioGo.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LarioGo";
+			};
+			name = Release;
+		};
+		CEAA000000000000000000E3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = traversar.LarioGoUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = LarioGo;
+			};
+			name = Debug;
+		};
+		CEAA000000000000000000E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = traversar.LarioGoUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = LarioGo;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -380,6 +553,24 @@
 			buildConfigurations = (
 				CE51925E2FF1D2FB009EBEC3 /* Debug */,
 				CE51925F2FF1D2FB009EBEC3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CEAA000000000000000000F1 /* Build configuration list for PBXNativeTarget "LarioGoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CEAA000000000000000000E1 /* Debug */,
+				CEAA000000000000000000E2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CEAA000000000000000000F2 /* Build configuration list for PBXNativeTarget "LarioGoUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CEAA000000000000000000E3 /* Debug */,
+				CEAA000000000000000000E4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

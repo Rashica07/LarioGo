@@ -1,0 +1,109 @@
+name: CI
+
+# Primary development happens on Windows, where no Swift toolchain exists.
+# This workflow is therefore the ONLY place LarioGo actually compiles and runs
+# its tests. Treat a red build here as a broken commit.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------
+  # Cheap, platform-independent guard. Runs in seconds and catches project
+  # corruption (dangling pbxproj refs, missing shared scheme, dead assets)
+  # before we pay for a macOS runner.
+  # ---------------------------------------------------------------------
+  project-integrity:
+    name: Project integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate Xcode project structure
+        run: python tools/check_project.py
+
+      - name: Self-test the simulator picker
+        run: python tools/test_pick_simulator.py
+
+      - name: Forbid third-party payment SDKs
+        # LarioGo must stay provider-independent (Apple Pay / PassKit only).
+        # Only source trees are scanned, so docs and this workflow can name
+        # the forbidden vendor without failing the build.
+        run: |
+          if grep -rniE 'stripe' LarioGo LarioGoTests LarioGoUITests \
+               $( [ -d Backend ] && echo Backend ) 2>/dev/null; then
+            echo "::error::Forbidden payment SDK reference found in source."
+            exit 1
+          fi
+          echo "Clean."
+
+  # ---------------------------------------------------------------------
+  # The real build. This is what closes the Implement -> Compile -> Test loop.
+  # ---------------------------------------------------------------------
+  ios:
+    name: iOS build & test
+    runs-on: macos-latest
+    needs: project-integrity
+    timeout-minutes: 40
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          ls /Applications | grep -i '^Xcode' || true
+          xcodebuild -version
+          swift --version
+
+      - name: List schemes and targets
+        run: xcodebuild -list -project LarioGo.xcodeproj
+
+      - name: Select simulator
+        id: sim
+        run: |
+          set -euo pipefail
+          UDID=$(xcrun simctl list devices available --json | python3 tools/pick_simulator.py)
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+      - name: Build for testing
+        run: |
+          set -o pipefail
+          xcodebuild build-for-testing \
+            -project LarioGo.xcodeproj \
+            -scheme LarioGo \
+            -configuration Debug \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath DerivedData \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Test
+        run: |
+          set -o pipefail
+          xcodebuild test-without-building \
+            -project LarioGo.xcodeproj \
+            -scheme LarioGo \
+            -configuration Debug \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath DerivedData \
+            -resultBundlePath TestResults.xcresult \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults
+          path: TestResults.xcresult
+          if-no-files-found: ignore
