@@ -32,7 +32,8 @@ struct LarioGoApp: App {
                     itineraries: ItineraryViewModel(
                         persistence: UserDefaultsItineraryPersistence(),
                         placeService: environment.placeService
-                    )
+                    ),
+                    bookings: BookingViewModel(service: environment.bookingService)
                 )
                 .environmentObject(environment)
 

@@ -17,6 +17,7 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject private var environment: AppEnvironment
     @ObservedObject var itineraries: ItineraryViewModel
+    @ObservedObject var bookings: BookingViewModel
     @State private var language: String = "English"
     @State private var largeText: Bool = false
     @State private var notifications: Bool = true
@@ -35,6 +36,18 @@ struct ProfileView: View {
                         TicketsView()
                     } label: {
                         row(symbol: "ticket.fill", title: "My Tickets", trailing: nil)
+                    }
+                    .buttonStyle(.plain)
+
+                    Divider().padding(.leading, 52)
+                    NavigationLink {
+                        BookingsView(model: bookings)
+                    } label: {
+                        row(
+                            symbol: "calendar.badge.clock",
+                            title: "Bookings",
+                            trailing: bookings.upcoming.isEmpty ? nil : "\(bookings.upcoming.count) upcoming"
+                        )
                     }
                     .buttonStyle(.plain)
 

@@ -15,6 +15,8 @@ struct PlaceDetailView: View {
     let place: Place
     @ObservedObject var favorites: FavoritesViewModel
     @ObservedObject var itineraries: ItineraryViewModel
+    @ObservedObject var bookings: BookingViewModel
+    @State private var showingBooking = false
     @State private var showingTripPicker = false
     @State private var addedConfirmation = false
 
@@ -30,6 +32,7 @@ struct PlaceDetailView: View {
                 if !place.about.isEmpty { about }
                 if let schedule = place.schedule { scheduleSection(schedule) }
                 if let dining = place.dining, !dining.cuisines.isEmpty { diningSection(dining) }
+                bookingButton
                 addToTripButton
                 mapSection
                 contactSection
@@ -43,6 +46,31 @@ struct PlaceDetailView: View {
     }
 
     // MARK: - Actions
+
+    /// Only shown where the venue actually takes reservations — a booking
+    /// button on a mountain ridge would be nonsense.
+    @ViewBuilder
+    private var bookingButton: some View {
+        if place.dining?.acceptsReservations == true {
+            Button {
+                Haptics.tap()
+                showingBooking = true
+            } label: {
+                Label("Reserve a table", systemImage: "calendar.badge.plus")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 15)
+                    .background(Theme.lakeGradient, in: .rect(cornerRadius: Theme.Radius.button))
+            }
+            .buttonStyle(.pressableScale(0.97))
+            .padding(.horizontal, 20)
+            .sheet(isPresented: $showingBooking) {
+                BookingSheet(place: place, bookings: bookings)
+                    .environmentObject(environment)
+            }
+        }
+    }
 
     private var addToTripButton: some View {
         VStack(spacing: 8) {

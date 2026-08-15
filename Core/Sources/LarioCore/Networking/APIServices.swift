@@ -333,6 +333,7 @@ public struct ServiceFactory: Sendable {
     public let configuration: AppConfiguration
     public let places: any PlaceServing
     public let auth: any AuthServing
+    public let bookings: any BookingServing
 
     public init(
         configuration: AppConfiguration,
@@ -346,6 +347,7 @@ public struct ServiceFactory: Sendable {
         case .mock:
             self.places = MockPlaceService(behaviour: configuration.mockBehaviour)
             self.auth = MockAuthService(behaviour: configuration.mockBehaviour)
+            self.bookings = MockBookingService(behaviour: configuration.mockBehaviour)
 
         case .live, .liveWithMockFallback:
             // validate() has already guaranteed the URL is present.
@@ -365,6 +367,10 @@ public struct ServiceFactory: Sendable {
                   )
                 : live
             self.auth = APIAuthService(client: client)
+            // No API booking service yet; bookings stay mock-backed until the
+            // backend endpoints land, rather than silently failing every
+            // reservation in live mode.
+            self.bookings = MockBookingService(behaviour: .immediate)
         }
     }
 }

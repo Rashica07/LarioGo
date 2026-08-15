@@ -2,149 +2,326 @@
 //  BookingSheet.swift
 //  LarioGo
 //
-//  Created by user on 29.6.26.
+//  Reservation flow: date, time, party size, confirmation.
 //
 
-
-//
-//  BookingSheet.swift
-//  LarioGo
-//
-
+import LarioCore
 import SwiftUI
 
 struct BookingSheet: View {
-    let ticket: TicketPass
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var environment: AppEnvironment
+    @StateObject private var model: BookingFormViewModel
 
-    @State private var quantity: Int = 1
-    @State private var date: Date = Date()
-    @State private var confirmed: Bool = false
-
-    private var total: Double { ticket.price * Double(quantity) }
-    private var totalString: String {
-        let f = NumberFormatter()
-        f.numberStyle = .currency
-        f.currencyCode = "EUR"
-        f.locale = Locale(identifier: "it_IT")
-        return f.string(from: NSNumber(value: total)) ?? "€\(total)"
+    init(place: Place, bookings: BookingViewModel) {
+        _model = StateObject(wrappedValue: BookingFormViewModel(place: place, bookings: bookings))
     }
 
     var body: some View {
-        Group {
-            if confirmed {
-                confirmation
-            } else {
-                form
+        NavigationStack {
+            Group {
+                if let booking = model.confirmed {
+                    BookingConfirmationView(booking: booking) { dismiss() }
+                } else {
+                    form
+                }
+            }
+            .background(Theme.sand)
+            .navigationTitle(model.confirmed == nil ? "Reserve" : "Confirmed")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                if model.confirmed == nil {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { dismiss() }
+                    }
+                }
             }
         }
-        .animation(.spring(response: 0.45, dampingFraction: 0.8), value: confirmed)
     }
 
     private var form: some View {
+        Form {
+            Section {
+                LabeledContent("Place", value: model.place.name)
+                if environment.mustLabelSampleContent && model.place.isSampleContent {
+                    // Nobody should think they hold a real table at an invented
+                    // restaurant.
+                    Label(
+                        "Sample listing — this reservation is not real and no venue will be expecting you.",
+                        systemImage: "flask.fill"
+                    )
+                    .font(.caption)
+                    .foregroundStyle(Theme.coral)
+                }
+            }
+
+            Section("When") {
+                DatePicker(
+                    "Date and time",
+                    selection: $model.date,
+                    in: Date()...,
+                    displayedComponents: [.date, .hourAndMinute]
+                )
+            }
+
+            Section("Guests") {
+                Picker("Party size", selection: $model.partySize) {
+                    ForEach(model.partySizes, id: \.self) { size in
+                        Text("\(size)").tag(size)
+                    }
+                }
+                Text("For larger groups, contact the venue directly.")
+                    .font(.caption)
+                    .foregroundStyle(Color.inkSecondary)
+            }
+
+            Section("Anything to add?") {
+                TextField("Optional note", text: $model.note, axis: .vertical)
+                    .lineLimit(2...4)
+            }
+
+            Section {
+                // Payment posture is stated up front rather than discovered at
+                // the venue. No money moves through the app.
+                Label("You'll pay at the venue. No payment is taken here.",
+                      systemImage: "creditcard.trianglebadge.exclamationmark")
+                    .font(.caption)
+                    .foregroundStyle(Color.inkSecondary)
+            }
+
+            if let message = model.validationMessage ?? model.errorMessage {
+                Section {
+                    Label(message, systemImage: "exclamationmark.triangle.fill")
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.coral)
+                }
+            }
+
+            Section {
+                Button {
+                    Task { await model.submit() }
+                } label: {
+                    HStack {
+                        Spacer()
+                        if model.isSubmitting {
+                            ProgressView().tint(.white)
+                        } else {
+                            Text("Request reservation").font(.headline)
+                        }
+                        Spacer()
+                    }
+                    .foregroundStyle(.white)
+                    .padding(.vertical, 6)
+                }
+                .listRowBackground(
+                    model.canSubmit ? AnyShapeStyle(Theme.lakeGradient) : AnyShapeStyle(Color.gray.opacity(0.4))
+                )
+                .disabled(!model.canSubmit)
+            }
+        }
+    }
+}
+
+// MARK: - Confirmation
+
+struct BookingConfirmationView: View {
+    let booking: Booking
+    let onDone: () -> Void
+
+    var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 22) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Label(ticket.kind.rawValue, systemImage: ticket.kind.symbol)
-                        .font(.caption.weight(.bold))
+            VStack(spacing: 22) {
+                ZStack {
+                    Circle().fill(Theme.teal.opacity(0.15)).frame(width: 96, height: 96)
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 42, weight: .bold))
                         .foregroundStyle(Theme.teal)
-                    Text(ticket.title)
+                }
+                .padding(.top, 24)
+
+                VStack(spacing: 6) {
+                    Text("You're booked")
                         .font(.title2.bold())
                         .foregroundStyle(Theme.azure)
-                    Text(ticket.validity)
-                        .font(.subheadline)
-                        .foregroundStyle(Color.inkSecondary)
-                }
-
-                stepper
-                DatePicker("Travel date", selection: $date, in: Date()..., displayedComponents: .date)
-                    .font(.headline)
-                    .tint(Theme.teal)
-
-                HStack {
-                    Text("Total")
+                    Text(booking.placeName)
                         .font(.headline)
-                        .foregroundStyle(Color.inkSecondary)
-                    Spacer()
-                    Text(totalString)
-                        .font(.title.bold())
-                        .foregroundStyle(Theme.azure)
+                        .foregroundStyle(Color.inkPrimary)
                 }
-                .padding(.top, 4)
 
-                Button {
-                    Haptics.success()
-                    confirmed = true
-                } label: {
-                    Text("Confirm Booking")
+                VStack(spacing: 0) {
+                    detailRow("Reference", booking.reference, mono: true)
+                    Divider()
+                    detailRow("When", EventDateFormatter.full(booking.startDate))
+                    Divider()
+                    detailRow("Guests", "\(booking.partySize)")
+                    Divider()
+                    detailRow("Status", booking.status.displayName)
+                    Divider()
+                    detailRow("Payment", booking.paymentStatus.displayName)
+                    if let note = booking.note, !note.isEmpty {
+                        Divider()
+                        detailRow("Note", note)
+                    }
+                }
+                .background(.white, in: .rect(cornerRadius: Theme.Radius.card))
+                .shadow(color: Theme.azure.opacity(0.08), radius: 10, x: 0, y: 5)
+
+                Text("Quote your reference at the venue. You can find this again under Profile → Bookings.")
+                    .font(.caption)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Color.inkSecondary)
+
+                Button(action: onDone) {
+                    Text("Done")
                         .font(.headline)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
+                        .padding(.vertical, 15)
                         .background(Theme.lakeGradient, in: .rect(cornerRadius: Theme.Radius.button))
                 }
                 .buttonStyle(.pressableScale(0.97))
             }
-            .padding(24)
+            .padding(.horizontal, 20)
+            .padding(.bottom, 32)
         }
     }
 
-    private var stepper: some View {
-        HStack {
-            Text("Travellers")
+    private func detailRow(_ label: String, _ value: String, mono: Bool = false) -> some View {
+        HStack(alignment: .top) {
+            Text(label)
+                .font(.subheadline)
+                .foregroundStyle(Color.inkSecondary)
+            Spacer(minLength: 16)
+            Text(value)
+                .font(mono ? .subheadline.monospaced().weight(.bold) : .subheadline.weight(.semibold))
+                .foregroundStyle(Color.inkPrimary)
+                .multilineTextAlignment(.trailing)
+        }
+        .padding(14)
+    }
+}
+
+// MARK: - History
+
+struct BookingsView: View {
+    @ObservedObject var model: BookingViewModel
+    @State private var cancelling: Booking?
+
+    var body: some View {
+        Group {
+            switch model.state {
+            case .idle, .loading:
+                ProgressView().controlSize(.large).tint(Theme.teal)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            case .failed(let error):
+                ErrorStateView(error: error) { Task { await model.load() } }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            case .loaded:
+                if model.bookings.isEmpty {
+                    emptyState
+                } else {
+                    list
+                }
+            }
+        }
+        .background(Theme.sand)
+        .navigationTitle("Bookings")
+        .task { await model.load() }
+        .refreshable { await model.load() }
+        .confirmationDialog(
+            "Cancel this booking?",
+            isPresented: Binding(get: { cancelling != nil }, set: { if !$0 { cancelling = nil } }),
+            titleVisibility: .visible
+        ) {
+            Button("Cancel booking", role: .destructive) {
+                if let booking = cancelling {
+                    Task { try? await model.cancel(booking) }
+                }
+                cancelling = nil
+            }
+            Button("Keep it", role: .cancel) { cancelling = nil }
+        }
+    }
+
+    private var list: some View {
+        List {
+            if !model.upcoming.isEmpty {
+                Section("Upcoming") {
+                    ForEach(model.upcoming) { booking in
+                        BookingRow(booking: booking)
+                            .swipeActions(edge: .trailing) {
+                                if booking.isCancellable() {
+                                    Button(role: .destructive) { cancelling = booking } label: {
+                                        Label("Cancel", systemImage: "xmark.circle")
+                                    }
+                                }
+                            }
+                    }
+                }
+            }
+            if !model.past.isEmpty {
+                Section("Past") {
+                    ForEach(model.past) { BookingRow(booking: $0) }
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "calendar.badge.clock")
+                .font(.system(size: 44))
+                .foregroundStyle(Theme.teal.opacity(0.45))
+            Text("No bookings yet")
                 .font(.headline)
                 .foregroundStyle(Color.inkPrimary)
-            Spacer()
-            HStack(spacing: 18) {
-                stepButton(symbol: "minus") { if quantity > 1 { quantity -= 1; Haptics.selection() } }
-                Text("\(quantity)")
-                    .font(.title3.bold().monospacedDigit())
-                    .foregroundStyle(Theme.azure)
-                    .frame(minWidth: 28)
-                stepButton(symbol: "plus") { if quantity < 10 { quantity += 1; Haptics.selection() } }
-            }
-        }
-    }
-
-    private func stepButton(symbol: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: symbol)
-                .font(.headline.bold())
-                .foregroundStyle(Theme.teal)
-                .frame(width: 40, height: 40)
-                .background(Theme.teal.opacity(0.12), in: .circle)
-        }
-        .buttonStyle(.pressableScale(0.85))
-    }
-
-    private var confirmation: some View {
-        VStack(spacing: 20) {
-            Spacer()
-            ZStack {
-                Circle().fill(Theme.teal.opacity(0.15)).frame(width: 120, height: 120)
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 76))
-                    .foregroundStyle(Theme.teal)
-            }
-            Text("Booking Confirmed")
-                .font(.title.bold())
-                .foregroundStyle(Theme.azure)
-            Text("\(quantity) × \(ticket.title)\nYour pass is ready in Profile › My Tickets.")
-                .font(.body)
+            Text("Reserve a table from any restaurant that takes bookings.")
+                .font(.subheadline)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(Color.inkSecondary)
-                .padding(.horizontal, 30)
-            Spacer()
-            Button { dismiss() } label: {
-                Text("Done")
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Theme.lakeGradient, in: .rect(cornerRadius: Theme.Radius.button))
-            }
-            .buttonStyle(.pressableScale(0.97))
-            .padding(24)
         }
+        .padding(.horizontal, 40)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+private struct BookingRow: View {
+    let booking: Booking
+
+    private var statusColour: Color {
+        switch booking.status {
+        case .confirmed: return Theme.teal
+        case .pending: return Theme.azure
+        case .cancelled, .declined: return Theme.coral
+        case .completed: return Color.inkSecondary
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack {
+                Text(booking.placeName)
+                    .font(.headline)
+                    .foregroundStyle(Color.inkPrimary)
+                Spacer()
+                Text(booking.status.displayName)
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(statusColour)
+            }
+            Text(EventDateFormatter.full(booking.startDate))
+                .font(.caption)
+                .foregroundStyle(Color.inkSecondary)
+            HStack(spacing: 10) {
+                Label("\(booking.partySize)", systemImage: "person.2.fill")
+                Text(booking.reference).monospaced()
+            }
+            .font(.caption2)
+            .foregroundStyle(Color.inkSecondary)
+        }
+        .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
     }
 }

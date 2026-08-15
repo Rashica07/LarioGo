@@ -23,6 +23,7 @@ final class AppEnvironment: ObservableObject {
 
     @Published private(set) var placeService: any PlaceServing
     @Published private(set) var authService: any AuthServing
+    @Published private(set) var bookingService: any BookingServing
 
     @Published private(set) var session: AuthSession?
 
@@ -46,10 +47,12 @@ final class AppEnvironment: ObservableObject {
             let factory = try ServiceFactory(configuration: configuration)
             self.placeService = factory.places
             self.authService = factory.auth
+            self.bookingService = factory.bookings
             self.configurationError = nil
         } catch {
             self.placeService = MockPlaceService(behaviour: configuration.mockBehaviour)
             self.authService = MockAuthService(behaviour: configuration.mockBehaviour)
+            self.bookingService = MockBookingService(behaviour: configuration.mockBehaviour)
             self.configurationError = String(describing: error)
         }
 
@@ -102,6 +105,7 @@ final class AppEnvironment: ObservableObject {
             configuration = updated
             placeService = factory.places
             authService = factory.auth
+            bookingService = factory.bookings
             configurationError = nil
             // Switching sources invalidates a session issued by the other one:
             // a mock token means nothing to the real API, and vice versa.

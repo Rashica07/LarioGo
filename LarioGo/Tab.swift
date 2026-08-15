@@ -25,10 +25,16 @@ struct ContentView: View {
     /// Shared for the same reason as favourites: "in your trip" must read the
     /// same on every screen.
     @StateObject private var itineraries: ItineraryViewModel
+    @StateObject private var bookings: BookingViewModel
 
-    init(favorites: FavoritesViewModel, itineraries: ItineraryViewModel) {
+    init(
+        favorites: FavoritesViewModel,
+        itineraries: ItineraryViewModel,
+        bookings: BookingViewModel
+    ) {
         _favorites = StateObject(wrappedValue: favorites)
         _itineraries = StateObject(wrappedValue: itineraries)
+        _bookings = StateObject(wrappedValue: bookings)
     }
 
     var body: some View {
@@ -41,7 +47,7 @@ struct ContentView: View {
                 ) { place in
                     explorePath.append(place)
                 }
-                .withPlaceDestinations(favorites: favorites, itineraries: itineraries)
+                .withPlaceDestinations(favorites: favorites, itineraries: itineraries, bookings: bookings)
             }
             .tabItem { Label("Explore", systemImage: "sparkles") }
             .tag(Tab.explore)
@@ -53,7 +59,7 @@ struct ContentView: View {
                 ) { place in
                     mapPath.append(place)
                 }
-                .withPlaceDestinations(favorites: favorites, itineraries: itineraries)
+                .withPlaceDestinations(favorites: favorites, itineraries: itineraries, bookings: bookings)
             }
             .tabItem { Label("Map", systemImage: "map.fill") }
             .tag(Tab.map)
@@ -65,21 +71,21 @@ struct ContentView: View {
                 ) { place in
                     searchPath.append(place)
                 }
-                .withPlaceDestinations(favorites: favorites, itineraries: itineraries)
+                .withPlaceDestinations(favorites: favorites, itineraries: itineraries, bookings: bookings)
             }
             .tabItem { Label("Search", systemImage: "magnifyingglass") }
             .tag(Tab.search)
 
             NavigationStack(path: $savedPath) {
                 FavoritesView(model: favorites) { place in savedPath.append(place) }
-                    .withPlaceDestinations(favorites: favorites, itineraries: itineraries)
+                    .withPlaceDestinations(favorites: favorites, itineraries: itineraries, bookings: bookings)
             }
             .tabItem { Label("Saved", systemImage: "heart.fill") }
             // A count here would be noise; the heart is enough of a signal.
             .tag(Tab.saved)
 
             NavigationStack {
-                ProfileView(itineraries: itineraries)
+                ProfileView(itineraries: itineraries, bookings: bookings)
             }
             .tabItem { Label("Profile", systemImage: "person.fill") }
             .tag(Tab.profile)
@@ -99,12 +105,18 @@ private extension View {
     /// then needs changing.
     func withPlaceDestinations(
         favorites: FavoritesViewModel,
-        itineraries: ItineraryViewModel
+        itineraries: ItineraryViewModel,
+        bookings: BookingViewModel
     ) -> some View {
         self
             .navigationDestination(for: Site.self) { SiteDetailView(site: $0) }
             .navigationDestination(for: Place.self) { place in
-                PlaceDetailView(place: place, favorites: favorites, itineraries: itineraries)
+                PlaceDetailView(
+                    place: place,
+                    favorites: favorites,
+                    itineraries: itineraries,
+                    bookings: bookings
+                )
             }
     }
 }
