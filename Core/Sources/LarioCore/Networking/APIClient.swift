@@ -1,10 +1,12 @@
-import Foundation
+// URL/URLSession are Sendable on Apple platforms but not in
+// swift-corelibs-foundation, which is what CI builds against.
+@preconcurrency import Foundation
 
 #if canImport(FoundationNetworking)
 // swift-corelibs-foundation splits URLSession into a separate module on Linux
 // and Windows. Without this the package builds on Apple platforms only, which
 // would defeat the point of keeping LarioCore platform-independent.
-import FoundationNetworking
+@preconcurrency import FoundationNetworking
 #endif
 
 /// The subset of URLSession the client needs.
@@ -23,11 +25,45 @@ public struct URLSessionTransport: HTTPTransport {
     }
 
     public func send(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
-        let (data, response) = try await session.data(for: request)
+        let (data, response) = try await Self.data(for: request, in: session)
         guard let http = response as? HTTPURLResponse else {
             throw ServiceError.unknown("Response was not HTTP.")
         }
         return (data, http)
+    }
+
+    /// `URLSession.data(for:)` is Apple-only — swift-corelibs-foundation, which
+    /// is what Linux and Windows use, ships only the completion-handler API. CI
+    /// builds this package on Linux, so the async call has to be bridged there.
+    private static func data(
+        for request: URLRequest,
+        in session: URLSession
+    ) async throws -> (Data, URLResponse) {
+        #if canImport(FoundationNetworking)
+        // A continuation must be resumed exactly once. The completion handler is
+        // called once per task, and every branch below resumes, so this is safe.
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                let task = session.dataTask(with: request) { data, response, error in
+                    if let error {
+                        continuation.resume(throwing: error)
+                    } else if let data, let response {
+                        continuation.resume(returning: (data, response))
+                    } else {
+                        continuation.resume(
+                            throwing: ServiceError.unknown("Response had neither data nor an error.")
+                        )
+                    }
+                }
+                task.resume()
+            }
+        } onCancel: {
+            // Nothing to do: cancelling the enclosing task surfaces as
+            // CancellationError, which the caller maps to .cancelled.
+        }
+        #else
+        return try await session.data(for: request)
+        #endif
     }
 }
 

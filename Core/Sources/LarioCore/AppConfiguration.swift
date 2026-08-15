@@ -1,4 +1,6 @@
-import Foundation
+// URL/URLSession are Sendable on Apple platforms but not in
+// swift-corelibs-foundation, which is what CI builds against.
+@preconcurrency import Foundation
 
 /// Where the app gets its content.
 ///
