@@ -16,6 +16,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject private var environment: AppEnvironment
+    @ObservedObject var itineraries: ItineraryViewModel
     @State private var language: String = "English"
     @State private var largeText: Bool = false
     @State private var notifications: Bool = true
@@ -39,9 +40,13 @@ struct ProfileView: View {
 
                     Divider().padding(.leading, 52)
                     NavigationLink {
-                        ItineraryPlannerView()
+                        ItineraryPlannerView(model: itineraries)
                     } label: {
-                        row(symbol: "calendar", title: "Itinerary", trailing: nil)
+                        row(
+                            symbol: "calendar",
+                            title: "Trips",
+                            trailing: itineraries.isEmpty ? nil : "\(itineraries.trips.count)"
+                        )
                     }
                     .buttonStyle(.plain)
                 }

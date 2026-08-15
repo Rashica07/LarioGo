@@ -22,9 +22,13 @@ struct ContentView: View {
     /// Owned here rather than per-tab so the heart state stays consistent
     /// everywhere a place appears — Explore, Search, Saved and Detail.
     @StateObject private var favorites: FavoritesViewModel
+    /// Shared for the same reason as favourites: "in your trip" must read the
+    /// same on every screen.
+    @StateObject private var itineraries: ItineraryViewModel
 
-    init(favorites: FavoritesViewModel) {
+    init(favorites: FavoritesViewModel, itineraries: ItineraryViewModel) {
         _favorites = StateObject(wrappedValue: favorites)
+        _itineraries = StateObject(wrappedValue: itineraries)
     }
 
     var body: some View {
@@ -37,7 +41,7 @@ struct ContentView: View {
                 ) { place in
                     explorePath.append(place)
                 }
-                .withPlaceDestinations(favorites: favorites)
+                .withPlaceDestinations(favorites: favorites, itineraries: itineraries)
             }
             .tabItem { Label("Explore", systemImage: "sparkles") }
             .tag(Tab.explore)
@@ -49,7 +53,7 @@ struct ContentView: View {
                 ) { place in
                     mapPath.append(place)
                 }
-                .withPlaceDestinations(favorites: favorites)
+                .withPlaceDestinations(favorites: favorites, itineraries: itineraries)
             }
             .tabItem { Label("Map", systemImage: "map.fill") }
             .tag(Tab.map)
@@ -61,21 +65,21 @@ struct ContentView: View {
                 ) { place in
                     searchPath.append(place)
                 }
-                .withPlaceDestinations(favorites: favorites)
+                .withPlaceDestinations(favorites: favorites, itineraries: itineraries)
             }
             .tabItem { Label("Search", systemImage: "magnifyingglass") }
             .tag(Tab.search)
 
             NavigationStack(path: $savedPath) {
                 FavoritesView(model: favorites) { place in savedPath.append(place) }
-                    .withPlaceDestinations(favorites: favorites)
+                    .withPlaceDestinations(favorites: favorites, itineraries: itineraries)
             }
             .tabItem { Label("Saved", systemImage: "heart.fill") }
             // A count here would be noise; the heart is enough of a signal.
             .tag(Tab.saved)
 
             NavigationStack {
-                ProfileView()
+                ProfileView(itineraries: itineraries)
             }
             .tabItem { Label("Profile", systemImage: "person.fill") }
             .tag(Tab.profile)
@@ -93,11 +97,14 @@ private extension View {
     /// without rewriting the existing screens first — they migrate to `Place`
     /// when their view models land, and this modifier is the only thing that
     /// then needs changing.
-    func withPlaceDestinations(favorites: FavoritesViewModel) -> some View {
+    func withPlaceDestinations(
+        favorites: FavoritesViewModel,
+        itineraries: ItineraryViewModel
+    ) -> some View {
         self
             .navigationDestination(for: Site.self) { SiteDetailView(site: $0) }
             .navigationDestination(for: Place.self) { place in
-                PlaceDetailView(place: place, favorites: favorites)
+                PlaceDetailView(place: place, favorites: favorites, itineraries: itineraries)
             }
     }
 }

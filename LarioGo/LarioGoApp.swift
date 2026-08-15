@@ -28,6 +28,10 @@ struct LarioGoApp: App {
                     favorites: FavoritesViewModel(
                         persistence: UserDefaultsFavoritesPersistence(),
                         placeService: environment.placeService
+                    ),
+                    itineraries: ItineraryViewModel(
+                        persistence: UserDefaultsItineraryPersistence(),
+                        placeService: environment.placeService
                     )
                 )
                 .environmentObject(environment)

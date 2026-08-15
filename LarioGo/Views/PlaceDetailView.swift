@@ -14,6 +14,9 @@ struct PlaceDetailView: View {
     @EnvironmentObject private var environment: AppEnvironment
     let place: Place
     @ObservedObject var favorites: FavoritesViewModel
+    @ObservedObject var itineraries: ItineraryViewModel
+    @State private var showingTripPicker = false
+    @State private var addedConfirmation = false
 
     var body: some View {
         ScrollView {
@@ -27,6 +30,7 @@ struct PlaceDetailView: View {
                 if !place.about.isEmpty { about }
                 if let schedule = place.schedule { scheduleSection(schedule) }
                 if let dining = place.dining, !dining.cuisines.isEmpty { diningSection(dining) }
+                addToTripButton
                 mapSection
                 contactSection
             }
@@ -36,6 +40,57 @@ struct PlaceDetailView: View {
         .navigationTitle(place.name)
         .navigationBarTitleDisplayMode(.inline)
         .ignoresSafeArea(edges: .top)
+    }
+
+    // MARK: - Actions
+
+    private var addToTripButton: some View {
+        VStack(spacing: 8) {
+            Button {
+                Haptics.tap()
+                if itineraries.trips.count <= 1 {
+                    // One trip or none: add straight away rather than showing a
+                    // picker with a single option.
+                    let added = itineraries.add(place, to: itineraries.trips.first?.id, on: Date())
+                    addedConfirmation = added
+                } else {
+                    showingTripPicker = true
+                }
+            } label: {
+                Label(
+                    itineraries.contains(place) ? "In your trip" : "Add to trip",
+                    systemImage: itineraries.contains(place) ? "checkmark.circle.fill" : "plus.circle.fill"
+                )
+                .font(.headline)
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 15)
+                .background(
+                    itineraries.contains(place)
+                        ? AnyShapeStyle(Theme.teal.opacity(0.85))
+                        : AnyShapeStyle(Theme.lakeGradient),
+                    in: .rect(cornerRadius: Theme.Radius.button)
+                )
+            }
+            .buttonStyle(.pressableScale(0.97))
+
+            if addedConfirmation {
+                Text("Added to your trip.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.teal)
+                    .transition(.opacity)
+            }
+        }
+        .padding(.horizontal, 20)
+        .animation(.easeInOut(duration: 0.2), value: addedConfirmation)
+        .confirmationDialog("Add to which trip?", isPresented: $showingTripPicker, titleVisibility: .visible) {
+            ForEach(itineraries.trips) { trip in
+                Button(trip.name) {
+                    addedConfirmation = itineraries.add(place, to: trip.id, on: Date())
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
     }
 
     // MARK: - Sections
