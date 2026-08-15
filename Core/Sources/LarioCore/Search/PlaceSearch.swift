@@ -82,9 +82,11 @@ public enum PlaceSearch {
         }
 
         if !terms.isEmpty {
-            guard terms.allSatisfy({ term in haystack(for: place).contains(term) }) else {
-                return false
-            }
+            // Built once, not once per term: `haystack` joins and case-folds
+            // every text field on the place, so calling it inside the loop
+            // rebuilt that string for each word the user typed.
+            let text = haystack(for: place)
+            guard terms.allSatisfy({ text.contains($0) }) else { return false }
         }
 
         return true
