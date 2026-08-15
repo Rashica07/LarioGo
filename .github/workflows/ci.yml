@@ -53,6 +53,39 @@ jobs:
           echo "Clean."
 
   # ---------------------------------------------------------------------
+  # LarioCore: Foundation-only domain logic (models, geo, search, ranking).
+  # No Apple frameworks, so it builds anywhere — including the Windows dev
+  # machine. This is the one part of the product that gets tested before it
+  # ever reaches CI.
+  # ---------------------------------------------------------------------
+  core:
+    name: Core build & test
+    runs-on: ubuntu-latest
+    needs: project-integrity
+    timeout-minutes: 20
+    container:
+      image: swift:5.9-jammy
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Swift version
+        run: swift --version
+
+      - name: Test
+        working-directory: Core
+        run: swift test
+
+      - name: Assert Core imports no Apple-only frameworks
+        # The whole value of this target is that it compiles off-Apple. A stray
+        # import would silently take that away.
+        run: |
+          if grep -rnE '^\s*import (SwiftUI|UIKit|MapKit|CoreLocation|AVFoundation|AppKit)' Core/Sources; then
+            echo "::error::LarioCore must stay Foundation-only so it can build and test off Apple platforms."
+            exit 1
+          fi
+          echo "Core is platform-independent. OK."
+
+  # ---------------------------------------------------------------------
   # Vapor API. Runs on Linux against a real Postgres, which is both cheaper
   # and closer to production than a macOS runner.
   # ---------------------------------------------------------------------

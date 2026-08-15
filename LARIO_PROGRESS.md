@@ -47,6 +47,30 @@ No job ran, not even the free Ubuntu one, because the block is account-wide.
 3. Use another CI with a free macOS tier (Codemagic, Bitrise) — needs a new config.
 4. Build on a Mac and report errors back.
 
+### Attempt to get a local Swift compiler — FAILED (disk space)
+Tried `winget install Swift.Toolchain` (6.3.3) on 2026-08-15. Visual Studio Build Tools 2026
+and Windows SDK 10.0.26100 are present, so prerequisites were fine. Six of seven MSIs
+installed; **`windows.msi` — the Swift Windows SDK, the one component needed to compile
+anything — failed with 1603 / 0x80070643** and the bundle rolled back, removing Swift
+entirely.
+
+Root cause: **drive C: has only 5.1 GB free.** The toolchain needs roughly 5–8 GB.
+D: (104 GB free) and E: (70 GB free) are both fixed drives.
+
+Worth noting even if this is fixed: Swift-on-Windows would let us compile and test
+**`LarioCore` only**. It cannot build the iOS app (SwiftUI/MapKit are Apple-only) or the
+Vapor backend (no Windows support). Unblocking GitHub Actions remains the higher-leverage
+fix because it covers all three.
+
+### The Core package — logic designed to be testable off-Apple
+`Core/` (`LarioCore`) is a Foundation-only Swift package holding the domain logic:
+`Coordinate` + haversine distance, `Place` model, `PlaceQuery`/`PlaceSearch`
+(filtering, relevance ranking, sorting), `Itinerary` (day grouping, reordering,
+rescheduling, resolution) and `FavoritesStore`. ~1,900 lines including 100+ tests.
+A CI guard rejects any `import SwiftUI/UIKit/MapKit/CoreLocation/AVFoundation/AppKit`
+in that target, because the moment one appears it stops being testable off Apple.
+**Still never compiled** — see above.
+
 ### What CAN be verified on Windows (and is, automatically)
 `tools/check_project.py` validates project structure, scheme wiring, and asset references.
 `tools/test_pick_simulator.py` self-tests the CI simulator selection. Both run in the
@@ -254,7 +278,7 @@ Debug and Release configurations.
 | Itineraries | Local-only, **broken by Bug #6** |
 | Offline | UserDefaults itineraries only |
 | Notifications | **Not started** |
-| Tests | 12 iOS seed tests + 15 backend auth/health tests. **None ever executed.** |
+| Tests | 12 iOS + 15 backend + ~100 LarioCore tests. **None ever executed.** |
 | Deployment | Dockerfile + docker-compose + deploy docs written. Never built. |
 | Last successful build | **Never.** CI pushed 2026-08-15 and rejected: billing locked. |
 | Last successful test run | **Never.** Only the Python tooling checks pass locally. |
