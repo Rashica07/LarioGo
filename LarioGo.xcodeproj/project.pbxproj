@@ -23,6 +23,10 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXBuildFile section */
+		CEAA000000000000000000AA /* LarioCore in Frameworks */ = {isa = PBXBuildFile; productRef = CEAA000000000000000000AB /* LarioCore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		CE5192502FF1D2F8009EBEC3 /* LarioGo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LarioGo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEAA000000000000000000A1 /* LarioGoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LarioGoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CEAA000000000000000000AA /* LarioCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = LarioGo;
 			packageProductDependencies = (
+				CEAA000000000000000000AB /* LarioCore */,
 			);
 			productName = LarioGo;
 			productReference = CE5192502FF1D2F8009EBEC3 /* LarioGo.app */;
@@ -195,6 +201,9 @@
 				Base,
 			);
 			mainGroup = CE5192472FF1D2F8009EBEC3;
+			packageReferences = (
+				CEAA000000000000000000AC /* XCLocalSwiftPackageReference "Core" */,
+			);
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CE5192512FF1D2F8009EBEC3 /* Products */;
@@ -537,6 +546,20 @@
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		CEAA000000000000000000AC /* XCLocalSwiftPackageReference "Core" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Core;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CEAA000000000000000000AB /* LarioCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LarioCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCConfigurationList section */
 		CE51924B2FF1D2F8009EBEC3 /* Build configuration list for PBXProject "LarioGo" */ = {

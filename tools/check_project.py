@@ -77,6 +77,21 @@ def check_pbxproj() -> tuple[dict[str, str], set[str]]:
         sample = next((l.strip() for l in src.splitlines() if oid in l), "")
         errors.append(f"pbxproj: dangling reference {oid} <- {sample[:90]}")
 
+    # 3b. malformed identifiers.
+    #
+    # Xcode object IDs are exactly 24 hexadecimal characters. A hand-written ID
+    # containing a non-hex letter looks plausible but is invalid, and — worse —
+    # slips past every check above, because those all match on `[0-9A-F]{24}`
+    # and simply never see it. Caught in practice: `CEAA000000000000000000G1`.
+    for m in re.finditer(r"^\t\t([0-9A-Za-z_]{20,32})\s*(?:/\*.*?\*/)?\s*=\s*\{", src, flags=re.M):
+        token = m.group(1)
+        if re.fullmatch(OBJ, token):
+            continue
+        errors.append(
+            f"pbxproj: malformed object identifier {token!r} "
+            f"(must be exactly 24 hex characters, got {len(token)} with non-hex chars)"
+        )
+
     # 4. orphans
     root_m = re.search(rf"rootObject\s*=\s*({OBJ})", src)
     root_id = root_m.group(1) if root_m else None
