@@ -23,6 +23,9 @@ func routes(_ app: Application) throws {
     // can change shape without breaking shipped app versions.
     let v1 = app.grouped("api", "v1")
     try v1.register(collection: AuthController())
+    // Discovery content is readable without authentication: a tourist should be
+    // able to open the app and see what is around them before making an account.
+    try v1.register(collection: PlaceController())
 }
 
 struct HealthResponse: Content {

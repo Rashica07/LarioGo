@@ -15,6 +15,46 @@ Vapor + Fluent + PostgreSQL backend for LarioGo. Versioned at `/api/v1`.
 | POST | `/api/v1/auth/register` | — | Create an account, returns a JWT |
 | POST | `/api/v1/auth/login` | — | Exchange credentials for a JWT |
 | GET | `/api/v1/auth/me` | Bearer | Current user record |
+| GET | `/api/v1/attractions` | — | List attractions |
+| GET | `/api/v1/restaurants` | — | List restaurants |
+| GET | `/api/v1/events` | — | List events and experiences |
+| GET | `/api/v1/places` | — | List every kind (map / search) |
+| GET | `/api/v1/{collection}/:id` | — | Single place |
+
+Discovery is intentionally unauthenticated: a visitor should see what is around
+them before being asked to create an account.
+
+### Discovery query parameters
+
+Applies to every list endpoint.
+
+| Parameter | Example | Notes |
+|---|---|---|
+| `kind` | `kind=restaurant,event` | Overrides the endpoint default |
+| `category` | `category=food` | Unknown value → 400 |
+| `search` | `search=piona` | Matches name, tagline, summary, about, region |
+| `minRating` | `minRating=4.5` | 0–5. Unrated places are excluded |
+| `maxPrice` | `maxPrice=2` | 1–4. Places *without* a price are kept |
+| `cuisine` | `cuisine=lombard` | Case-insensitive |
+| `tag` | `tag=hiking` | Case-insensitive |
+| `region` | `region=Varenna` | Exact match |
+| `featured` | `featured=true` | |
+| `lat` + `lon` | `lat=45.85&lon=9.39` | Must be supplied together |
+| `radius` | `radius=5000` | Metres. Requires `lat`/`lon` |
+| `startsAfter` / `startsBefore` | ISO-8601 | Event date range |
+| `sort` | `sort=rating` | `relevance`, `distance`, `rating`, `priceLowToHigh`, `name`, `startDate` |
+| `page` / `per` | `page=2&per=20` | `per` capped at 100 |
+
+Responses are enveloped: `{ items: [...], metadata: { page, per, total, totalPages, hasNextPage } }`.
+A bare array would leave the client unable to distinguish "no more results" from
+"this page happened to be short".
+
+`distance` (metres) appears on results only when `lat`/`lon` were supplied —
+never as a placeholder value, which clients render as if it were real.
+
+Invalid input is rejected with 400 rather than silently defaulted: `lat` without
+`lon`, `sort=distance` without a location, `minRating=9`, `per=100000` and
+unknown enum values all produce an explanatory error.
 
 ## Running locally
 
@@ -102,7 +142,31 @@ CORS_ALLOWED_ORIGIN=<exact origin, if a browser client exists>
 
 Run `App migrate --yes` as a release/deploy command, then `App serve`.
 
+## Geosearch implementation
+
+Proximity uses an indexable bounding-box prefilter, then an exact haversine check
+to trim the corners of the box. Distance ordering and text relevance cannot be
+expressed in Fluent's query builder, so those two paths load the filtered set and
+finish in memory, bounded by a `fetchCap` of 5,000 rows.
+
+That is comfortable for one region's content and deliberately explicit rather
+than silently truncating. **PostGIS plus a tsvector index is the scaling path**
+once coverage grows past a few thousand places; the API contract does not change
+when that happens.
+
+## Seed content
+
+`SeedPlaces` runs outside production (or with `SEED_CONTENT=true`) and no-ops if
+the table already has rows.
+
+Attractions and landmarks are **real, publicly documented places** around Lecco
+and Lake Como. Dining and event entries are **invented sample data** — plausible
+but not real businesses, tagged `sample-data` and described as such in their own
+text. Opening hours, phone numbers and reservation availability are left absent
+rather than fabricated. Replace with licensed or partner-supplied content before
+any public launch.
+
 ## Not yet implemented
 
-Attractions, restaurants, events, reviews, favourites, itineraries, bookings and
-geosearch. Only the Phase 1 foundation (config, user, auth, health) exists.
+Reviews, favourites, itineraries and bookings. Phases 1–2 (config, user, auth,
+health, discovery content) exist.

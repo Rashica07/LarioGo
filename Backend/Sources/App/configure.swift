@@ -109,6 +109,14 @@ private func configureRoutesAndMigrations(_ app: Application) async throws {
 
     // MARK: Migrations
     app.migrations.add(CreateUser())
+    app.migrations.add(CreatePlace())
+    // Seed content is a migration so a fresh environment is immediately useful.
+    // It no-ops when the table already has rows, and is skipped in production
+    // unless explicitly enabled — real deployments get licensed content, not
+    // the sample dining and event entries.
+    if app.environment != .production || Environment.get("SEED_CONTENT") == "true" {
+        app.migrations.add(SeedPlaces())
+    }
 
     if Environment.get("AUTO_MIGRATE") == "true" || app.environment == .testing {
         try await app.autoMigrate()

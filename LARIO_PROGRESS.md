@@ -110,8 +110,13 @@ build before Swift is even reached.
 
 **Phase 0 — Audit: COMPLETE.** Build blockers fixed.
 **Phase 1 — Backend foundation: WRITTEN, UNCOMPILED.** Vapor + Fluent + PostgreSQL + JWT
-auth + health endpoint + 15 tests exist under `Backend/`. None of it has been built.
-**Blocked on the CI billing issue in §0 before Phase 2.**
+auth + health endpoint.
+**Phase 2 — Discovery content API: WRITTEN, UNCOMPILED.** `places` table with a `kind`
+discriminator serving `/attractions`, `/restaurants`, `/events` and `/places`; filtering by
+category/rating/price/cuisine/tag/region/featured, text search, bounding-box + haversine
+geosearch, six sort orders, enveloped pagination, strict 400s on bad input, and 20 seed
+places. 40 tests.
+**Next: Phase 3 — connect the existing SwiftUI frontend.** Still entirely unverified.
 
 ---
 
@@ -293,9 +298,9 @@ Debug and Release configurations.
 |---|---|
 | Frontend UI shell | Partial — 8 views built, static data, no states |
 | Frontend architecture | **Not started** — no VMs, no services, no networking |
-| Backend | Phase 1 written (Vapor/Fluent/JWT, health, auth). **Never compiled.** |
-| Database | `users` table + migration written. Never run against Postgres. |
-| API | `/health`, `/api/v1/auth/{register,login,me}` written. Never served a request. |
+| Backend | Phases 1–2 written (auth, health, discovery API). **Never compiled.** |
+| Database | `users` + `places` tables, enums, indexes, seed migration. Never run. |
+| API | auth + `/attractions` `/restaurants` `/events` `/places`. Never served a request. |
 | Auth | JWT + bcrypt + bearer authenticator written. **Never executed.** |
 | Favorites | **Not started** |
 | Search | **Not started** |
@@ -304,7 +309,7 @@ Debug and Release configurations.
 | Itineraries | Local-only, **broken by Bug #6** |
 | Offline | UserDefaults itineraries only |
 | Notifications | **Not started** |
-| Tests | 12 iOS + 15 backend + ~100 LarioCore tests. **None ever executed.** |
+| Tests | 12 iOS + 55 backend + ~100 LarioCore. **None ever executed.** |
 | Deployment | Dockerfile + docker-compose + deploy docs written. Never built. |
 | Last successful build | **Never.** CI pushed 2026-08-15 and rejected: billing locked. |
 | Last successful test run | **Never.** Only the Python tooling checks pass locally. |
