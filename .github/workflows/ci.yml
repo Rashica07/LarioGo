@@ -65,6 +65,11 @@ jobs:
     timeout-minutes: 20
     container:
       image: swift:5.9-jammy
+    defaults:
+      run:
+        # The container runs steps with `sh` (dash) by default, which has no
+        # `set -o pipefail`. bash is present in the image; ask for it.
+        shell: bash
     steps:
       - uses: actions/checkout@v4
 
@@ -104,6 +109,11 @@ jobs:
 
     container:
       image: swift:5.9-jammy
+
+    defaults:
+      run:
+        # As above: the container's default shell is dash, not bash.
+        shell: bash
 
     services:
       postgres:
