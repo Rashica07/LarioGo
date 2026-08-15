@@ -50,9 +50,9 @@ public final class InMemoryFavoritesPersistence: FavoritesPersistence, @unchecke
 /// Backend sync, when it exists, reconciles afterwards rather than gating the tap.
 public struct FavoritesStore: Sendable {
     private var favorites: [UUID: Favorite]
-    private let persistence: FavoritesPersistence
+    private let persistence: any FavoritesPersistence
 
-    public init(persistence: FavoritesPersistence) throws {
+    public init(persistence: any FavoritesPersistence) throws {
         self.persistence = persistence
         let loaded = try persistence.load()
         // Later entries win if storage was ever corrupted with duplicates.

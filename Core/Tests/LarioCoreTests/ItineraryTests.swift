@@ -28,8 +28,8 @@ final class ItineraryTests: XCTestCase {
         trip.add(placeID: b, on: day(10), calendar: calendar)
         trip.add(placeID: c, on: day(10), calendar: calendar)
 
-        XCTAssertEqual(trip.stops(on: day(10), calendar: calendar).map(\.placeID), [a, b, c])
-        XCTAssertEqual(trip.stops(on: day(10), calendar: calendar).map(\.order), [0, 1, 2])
+        XCTAssertEqual(trip.orderedStops(on: day(10), calendar: calendar).map(\.placeID), [a, b, c])
+        XCTAssertEqual(trip.orderedStops(on: day(10), calendar: calendar).map(\.order), [0, 1, 2])
     }
 
     func testAddNormalisesTimeToStartOfDay() {
@@ -73,10 +73,10 @@ final class ItineraryTests: XCTestCase {
         trip.add(placeID: b, on: day(10), calendar: calendar)
         trip.add(placeID: c, on: day(10), calendar: calendar)
 
-        let middle = trip.stops(on: day(10), calendar: calendar)[1]
+        let middle = trip.orderedStops(on: day(10), calendar: calendar)[1]
         XCTAssertTrue(trip.remove(stopID: middle.id, calendar: calendar))
 
-        let remaining = trip.stops(on: day(10), calendar: calendar)
+        let remaining = trip.orderedStops(on: day(10), calendar: calendar)
         XCTAssertEqual(remaining.map(\.placeID), [a, c])
         XCTAssertEqual(remaining.map(\.order), [0, 1], "Orders must stay contiguous after removal")
     }
@@ -97,7 +97,7 @@ final class ItineraryTests: XCTestCase {
 
         // Drag the first item to the end.
         XCTAssertTrue(trip.move(on: day(10), from: 0, to: 3, calendar: calendar))
-        XCTAssertEqual(trip.stops(on: day(10), calendar: calendar).map(\.placeID), [b, c, a])
+        XCTAssertEqual(trip.orderedStops(on: day(10), calendar: calendar).map(\.placeID), [b, c, a])
     }
 
     func testMoveUpwards() {
@@ -106,7 +106,7 @@ final class ItineraryTests: XCTestCase {
         [a, b, c].forEach { trip.add(placeID: $0, on: day(10), calendar: calendar) }
 
         XCTAssertTrue(trip.move(on: day(10), from: 2, to: 0, calendar: calendar))
-        XCTAssertEqual(trip.stops(on: day(10), calendar: calendar).map(\.placeID), [c, a, b])
+        XCTAssertEqual(trip.orderedStops(on: day(10), calendar: calendar).map(\.placeID), [c, a, b])
     }
 
     func testMoveToSamePositionIsANoOp() {
@@ -115,7 +115,7 @@ final class ItineraryTests: XCTestCase {
         [a, b].forEach { trip.add(placeID: $0, on: day(10), calendar: calendar) }
 
         XCTAssertTrue(trip.move(on: day(10), from: 0, to: 0, calendar: calendar))
-        XCTAssertEqual(trip.stops(on: day(10), calendar: calendar).map(\.placeID), [a, b])
+        XCTAssertEqual(trip.orderedStops(on: day(10), calendar: calendar).map(\.placeID), [a, b])
     }
 
     func testMoveWithInvalidIndexIsRejected() {
@@ -130,7 +130,7 @@ final class ItineraryTests: XCTestCase {
         var trip = Itinerary(name: "T")
         (0..<5).forEach { _ in trip.add(placeID: UUID(), on: day(10), calendar: calendar) }
         trip.move(on: day(10), from: 4, to: 1, calendar: calendar)
-        XCTAssertEqual(trip.stops(on: day(10), calendar: calendar).map(\.order), [0, 1, 2, 3, 4])
+        XCTAssertEqual(trip.orderedStops(on: day(10), calendar: calendar).map(\.order), [0, 1, 2, 3, 4])
     }
 
     func testMoveDoesNotAffectOtherDays() {
@@ -143,7 +143,7 @@ final class ItineraryTests: XCTestCase {
         trip.add(placeID: b, on: day(10), calendar: calendar)
 
         trip.move(on: day(10), from: 0, to: 2, calendar: calendar)
-        XCTAssertEqual(trip.stops(on: day(11), calendar: calendar).map(\.placeID), [x, y])
+        XCTAssertEqual(trip.orderedStops(on: day(11), calendar: calendar).map(\.placeID), [x, y])
     }
 
     // MARK: - Rescheduling
@@ -154,12 +154,12 @@ final class ItineraryTests: XCTestCase {
         trip.add(placeID: a, on: day(10), calendar: calendar)
         trip.add(placeID: b, on: day(10), calendar: calendar)
 
-        let first = trip.stops(on: day(10), calendar: calendar)[0]
+        let first = trip.orderedStops(on: day(10), calendar: calendar)[0]
         XCTAssertTrue(trip.reschedule(stopID: first.id, to: day(11), calendar: calendar))
 
-        XCTAssertEqual(trip.stops(on: day(10), calendar: calendar).map(\.placeID), [b])
-        XCTAssertEqual(trip.stops(on: day(11), calendar: calendar).map(\.placeID), [a])
-        XCTAssertEqual(trip.stops(on: day(10), calendar: calendar).map(\.order), [0],
+        XCTAssertEqual(trip.orderedStops(on: day(10), calendar: calendar).map(\.placeID), [b])
+        XCTAssertEqual(trip.orderedStops(on: day(11), calendar: calendar).map(\.placeID), [a])
+        XCTAssertEqual(trip.orderedStops(on: day(10), calendar: calendar).map(\.order), [0],
                        "The vacated day must re-index")
     }
 

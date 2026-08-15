@@ -61,7 +61,7 @@ public struct Itinerary: Identifiable, Hashable, Sendable, Codable {
     }
 
     /// Stops for a day, in order.
-    public func stops(on day: Date, calendar: Calendar = .current) -> [ItineraryStop] {
+    public func orderedStops(on day: Date, calendar: Calendar = .current) -> [ItineraryStop] {
         let target = calendar.startOfDay(for: day)
         return stops
             .filter { calendar.startOfDay(for: $0.day) == target }
@@ -90,7 +90,7 @@ public struct Itinerary: Identifiable, Hashable, Sendable, Codable {
         now: Date = Date()
     ) -> Bool {
         let normalizedDay = calendar.startOfDay(for: day)
-        let existing = stops(on: normalizedDay, calendar: calendar)
+        let existing = orderedStops(on: normalizedDay, calendar: calendar)
         guard !existing.contains(where: { $0.placeID == placeID }) else { return false }
 
         stops.append(ItineraryStop(
@@ -130,7 +130,7 @@ public struct Itinerary: Identifiable, Hashable, Sendable, Codable {
         calendar: Calendar = .current,
         now: Date = Date()
     ) -> Bool {
-        var ordered = stops(on: day, calendar: calendar)
+        var ordered = orderedStops(on: day, calendar: calendar)
         guard ordered.indices.contains(source) else { return false }
         // `destination == count` is valid: it means "past the last item".
         guard destination >= 0, destination <= ordered.count else { return false }
@@ -158,7 +158,7 @@ public struct Itinerary: Identifiable, Hashable, Sendable, Codable {
         guard calendar.startOfDay(for: previousDay) != newDay else { return false }
 
         stops[index].day = newDay
-        stops[index].order = stops(on: newDay, calendar: calendar).count
+        stops[index].order = orderedStops(on: newDay, calendar: calendar).count
         reindex(day: previousDay, calendar: calendar)
         reindex(day: newDay, calendar: calendar)
         updatedAt = now
@@ -169,7 +169,7 @@ public struct Itinerary: Identifiable, Hashable, Sendable, Codable {
 
     /// Rewrites a day's `order` values to be contiguous from zero.
     private mutating func reindex(day: Date, calendar: Calendar) {
-        let ordered = stops(on: day, calendar: calendar)
+        let ordered = orderedStops(on: day, calendar: calendar)
         apply(ordered: ordered, on: day, calendar: calendar)
     }
 
@@ -213,7 +213,7 @@ extension Itinerary {
         calendar: Calendar = .current
     ) -> [ResolvedDay] {
         days.map { day in
-            let entries = stops(on: day, calendar: calendar).compactMap { stop in
+            let entries = orderedStops(on: day, calendar: calendar).compactMap { stop in
                 catalogue[stop.placeID].map { (stop: stop, place: $0) }
             }
             return ResolvedDay(day: day, entries: entries)
