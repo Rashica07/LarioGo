@@ -101,7 +101,9 @@ struct SiteDetailView: View {
                     span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
                 ))) {
                     Annotation(site.name, coordinate: site.coordinate) {
-                        MapPin(site: site, isSelected: true)
+                        // MapPin now takes a symbol rather than a Site, so it
+                        // can serve both the legacy Site screens and Place.
+                        MapPin(symbol: site.category.symbol, isSelected: true)
                     }
                 }
                 .frame(height: 180)

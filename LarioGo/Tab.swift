@@ -37,8 +37,13 @@ struct ContentView: View {
             .tag(Tab.explore)
 
             NavigationStack(path: $mapPath) {
-                MapTabView { site in mapPath.append(site) }
-                    .withPlaceDestinations(favorites: favorites)
+                MapTabView(
+                    placeService: environment.placeService,
+                    locationProvider: FixedLocationProvider.lecco
+                ) { place in
+                    mapPath.append(place)
+                }
+                .withPlaceDestinations(favorites: favorites)
             }
             .tabItem { Label("Map", systemImage: "map.fill") }
             .tag(Tab.map)
