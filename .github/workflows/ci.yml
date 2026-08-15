@@ -77,6 +77,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Cache SPM build
+        uses: actions/cache@v4
+        with:
+          path: |
+            Core/.build
+          key: spm-core-${{ runner.os }}-${{ hashFiles('Core/Package.swift') }}
+          restore-keys: |
+            spm-core-${{ runner.os }}-
+
       - name: Swift version
         run: swift --version
 
@@ -142,6 +151,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Cache SPM build
+        uses: actions/cache@v4
+        with:
+          path: |
+            Backend/.build
+          key: spm-backend-${{ runner.os }}-${{ hashFiles('Backend/Package.swift') }}
+          restore-keys: |
+            spm-backend-${{ runner.os }}-
 
       - name: Swift version
         run: swift --version
@@ -223,6 +241,34 @@ jobs:
             -derivedDataPath DerivedData \
             -resultBundlePath TestResults.xcresult \
             CODE_SIGNING_ALLOWED=NO
+
+      # The simulator build is unsigned, so it needs no Apple Developer account,
+      # no certificate and no provisioning profile. Download this artifact and
+      # drop it into a browser-based simulator host (Appetize.io and similar) to
+      # actually use the app from a Windows machine.
+      - name: Package simulator app
+        if: success() || failure()
+        run: |
+          set -euo pipefail
+          app=$(find DerivedData/Build/Products -maxdepth 2 -name 'LarioGo.app' -type d | head -1)
+          if [ -z "$app" ]; then
+            echo "No LarioGo.app found — the build did not get far enough."
+            exit 0
+          fi
+          echo "Packaging $app"
+          ditto -c -k --sequesterRsrc --keepParent "$app" LarioGo-simulator.zip
+          echo "### Simulator build ready" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Download the \`LarioGo-simulator\` artifact below and upload it to a browser-based simulator host to run the app without a Mac. Unsigned — no Apple Developer account needed." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload simulator app
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: LarioGo-simulator
+          path: LarioGo-simulator.zip
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Upload test results
         if: always()
