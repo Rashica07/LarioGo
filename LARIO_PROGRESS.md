@@ -119,7 +119,16 @@ places. 40 tests.
 **Phase 3 — service layer + mock mode: WRITTEN, UNCOMPILED.** Service protocols
 (`PlaceServing`, `AuthServing`, `FavoriteServing`, `ItineraryServing`), a transport-agnostic
 `ServiceError` with user-facing copy, and full mock implementations.
-**Next: API client + wiring the existing SwiftUI views to ViewModels.** Still unverified.
+`APIClient` is done: centralised, protocol-backed transport, ISO-8601 date handling with and
+without fractional seconds, Vapor error-reason extraction, bearer-token injection, and a
+`tokenRejected` callback so a dead session is cleared rather than retried forever.
+**Retries only GET** — a retried POST can create a duplicate account or booking — and only
+for genuinely retryable failures, with injectable sleep so tests are instant.
+`FallbackPlaceService` covers for an unreachable API but **never masks 404 or 401**, since
+substituting invented content for "this is gone" or "please sign in" would mislead.
+`ServiceFactory` is the single place that decides mock versus live.
+
+**Next: wire the existing SwiftUI views to ViewModels.** Still unverified.
 
 ### Mock mode — a deliberate, retained feature (per instruction 2026-08-15)
 `DataSourceMode` (`mock` / `live` / `liveWithMockFallback`) **stays until v1.0 has licensed
@@ -324,7 +333,7 @@ Debug and Release configurations.
 | Area | Status |
 |---|---|
 | Frontend UI shell | Partial — 8 views built, static data, no states |
-| Frontend architecture | **Not started** — no VMs, no services, no networking |
+| Frontend architecture | Services, mock mode and API client in LarioCore. **Views not yet wired.** |
 | Backend | Phases 1–2 written (auth, health, discovery API). **Never compiled.** |
 | Database | `users` + `places` tables, enums, indexes, seed migration. Never run. |
 | API | auth + `/attractions` `/restaurants` `/events` `/places`. Never served a request. |
@@ -336,7 +345,7 @@ Debug and Release configurations.
 | Itineraries | Local-only, **broken by Bug #6** |
 | Offline | UserDefaults itineraries only |
 | Notifications | **Not started** |
-| Tests | 12 iOS + 55 backend + ~150 LarioCore. **None ever executed.** |
+| Tests | 11 iOS + 54 backend + 158 LarioCore = **223. None ever executed.** |
 | Deployment | Dockerfile + docker-compose + deploy docs written. Never built. |
 | Last successful build | **Never.** CI pushed 2026-08-15 and rejected: billing locked. |
 | Last successful test run | **Never.** Only the Python tooling checks pass locally. |
