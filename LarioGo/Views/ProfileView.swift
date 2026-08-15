@@ -11,9 +11,11 @@
 //  LarioGo
 //
 
+import LarioCore
 import SwiftUI
 
 struct ProfileView: View {
+    @EnvironmentObject private var environment: AppEnvironment
     @State private var language: String = "English"
     @State private var largeText: Bool = false
     @State private var notifications: Bool = true
@@ -26,9 +28,15 @@ struct ProfileView: View {
                 profileHeader
 
                 card(title: "My Trip") {
-                    row(symbol: "ticket.fill", title: "My Tickets", trailing: "2 active")
-                    Divider().padding(.leading, 52)
-                    row(symbol: "heart.fill", title: "Saved Places", trailing: "5")
+                    // Tickets moved here when Search and Saved took tab slots;
+                    // five tabs is the practical maximum on iPhone.
+                    NavigationLink {
+                        TicketsView()
+                    } label: {
+                        row(symbol: "ticket.fill", title: "My Tickets", trailing: nil)
+                    }
+                    .buttonStyle(.plain)
+
                     Divider().padding(.leading, 52)
                     NavigationLink {
                         ItineraryPlannerView()
@@ -56,12 +64,20 @@ struct ProfileView: View {
                     toggleRow(symbol: "bell.fill", title: "Event Notifications", isOn: $notifications)
                 }
 
-                card(title: "Lecco Tourism") {
-                    row(symbol: "info.circle.fill", title: "Visitor Information", trailing: nil)
-                    Divider().padding(.leading, 52)
-                    row(symbol: "phone.fill", title: "Emergency & Help", trailing: nil)
-                    Divider().padding(.leading, 52)
-                    row(symbol: "checkmark.seal.fill", title: "Official City Service", trailing: nil)
+                // Rows that had no destination have been removed rather than
+                // left as dead chevrons. They return when there is something
+                // behind them.
+                card(title: "Developer") {
+                    NavigationLink {
+                        DataSourceSettingsView()
+                    } label: {
+                        row(
+                            symbol: "flask.fill",
+                            title: "Data Source",
+                            trailing: environment.configuration.dataSource.displayName
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
 
                 Text("LarioGo · Official guide to Lecco & Lake Como\nVersion 1.0 (MVP)")

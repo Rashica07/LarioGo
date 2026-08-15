@@ -17,10 +17,21 @@ import SwiftUI
 struct LarioGoApp: App {
     @State private var isReady = false
 
+    /// The composition root. Built once here and injected, so nothing further
+    /// down ever constructs a service or decides between mock and live.
+    @StateObject private var environment = AppEnvironment()
+
     var body: some Scene {
         WindowGroup {
             ZStack {
-                ContentView()
+                ContentView(
+                    favorites: FavoritesViewModel(
+                        persistence: UserDefaultsFavoritesPersistence(),
+                        placeService: environment.placeService
+                    )
+                )
+                .environmentObject(environment)
+
                 if !isReady {
                     SplashView()
                         .transition(.opacity)
