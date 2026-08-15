@@ -81,9 +81,7 @@ jobs:
         run: |
           set -o pipefail
           swift test 2>&1 | tee /tmp/core.log || {
-            echo "::group::Unique errors"
-            grep -E '(^|[/ ])[^ ]*\.swift:[0-9]+:[0-9]+: error:' /tmp/core.log               | sed 's|.*/Sources/|Sources/|; s|.*/Tests/|Tests/|' | sort -u | head -60
-            echo "::endgroup::"
+            bash ../tools/summarise-build-log.sh /tmp/core.log
             exit 1
           }
 
@@ -149,9 +147,7 @@ jobs:
         run: |
           set -o pipefail
           swift build --build-tests 2>&1 | tee /tmp/backend.log || {
-            echo "::group::Unique errors"
-            grep -E '(^|[/ ])[^ ]*\.swift:[0-9]+:[0-9]+: error:' /tmp/backend.log               | sed 's|.*/Sources/|Sources/|; s|.*/Tests/|Tests/|' | sort -u | head -60
-            echo "::endgroup::"
+            bash ../tools/summarise-build-log.sh /tmp/backend.log
             exit 1
           }
 
@@ -160,9 +156,7 @@ jobs:
         run: |
           set -o pipefail
           swift test --skip-build 2>&1 | tee /tmp/backend-test.log || {
-            echo "::group::Failures"
-            grep -E 'error:|XCTAssert|failed' /tmp/backend-test.log | sort -u | head -60
-            echo "::endgroup::"
+            bash ../tools/summarise-build-log.sh /tmp/backend-test.log
             exit 1
           }
 

@@ -338,7 +338,10 @@ final class MockServiceTests: XCTestCase {
         var trip = try await service.itinerary(id: id)
         trip.name = "Renamed"
         try await service.save(trip)
-        XCTAssertEqual(try await service.itinerary(id: id).name, "Renamed")
+        // XCTAssertEqual takes autoclosures, which cannot be async — the await
+        // has to be hoisted out rather than written inline.
+        let reloadedName = try await service.itinerary(id: id).name
+        XCTAssertEqual(reloadedName, "Renamed")
 
         try await service.delete(id: id)
         do {
