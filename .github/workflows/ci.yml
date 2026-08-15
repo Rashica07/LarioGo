@@ -261,6 +261,49 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "Download the \`LarioGo-simulator\` artifact below and upload it to a browser-based simulator host to run the app without a Mac. Unsigned — no Apple Developer account needed." >> "$GITHUB_STEP_SUMMARY"
 
+      # We already pay for a macOS runner here, so capture the app running
+      # rather than depending on a third-party streaming service with a free
+      # tier. Screenshots and a video come back as artifacts, viewable on any
+      # machine including Windows.
+      - name: Capture screenshots from the simulator
+        if: success() || failure()
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          udid="${{ steps.sim.outputs.udid }}"
+          app=$(find DerivedData/Build/Products -maxdepth 2 -name 'LarioGo.app' -type d | head -1)
+          if [ -z "$app" ]; then echo "No app built; nothing to capture."; exit 0; fi
+
+          mkdir -p screenshots
+          xcrun simctl bootstatus "$udid" -b || xcrun simctl boot "$udid" || true
+          xcrun simctl install "$udid" "$app"
+
+          bundle_id=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Info.plist")
+          echo "Launching $bundle_id"
+
+          xcrun simctl io "$udid" recordVideo --codec h264 screenshots/session.mp4 &
+          record_pid=$!
+
+          xcrun simctl launch "$udid" "$bundle_id" || true
+          # The splash screen holds for 1.4s; wait past it before the first shot.
+          sleep 6
+          xcrun simctl io "$udid" screenshot screenshots/01-explore.png || true
+          sleep 2
+          xcrun simctl io "$udid" screenshot screenshots/02-after-load.png || true
+
+          kill -INT $record_pid 2>/dev/null || true
+          wait $record_pid 2>/dev/null || true
+          ls -la screenshots || true
+
+      - name: Upload screenshots
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: LarioGo-screenshots
+          path: screenshots
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Upload simulator app
         if: success() || failure()
         uses: actions/upload-artifact@v4

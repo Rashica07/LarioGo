@@ -1,5 +1,9 @@
 import Fluent
 import FluentPostgresDriver
+// NIOSSLContext and TLSConfiguration. Reached transitively via
+// FluentPostgresDriver, but imported explicitly rather than relying on
+// another module re-exporting it.
+import NIOSSL
 import JWT
 import Vapor
 
