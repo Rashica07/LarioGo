@@ -352,53 +352,46 @@ Debug and Release configurations.
 
 ---
 
-## 6. ROADMAP (consolidated 2026-08-15)
+## 6. ROADMAP (3 phases)
 
-The spec's 16 phases were a feature checklist, not a work plan — several were an
-afternoon each while others were weeks. Merged into 5, ordered so the decisions that
-are expensive to reverse happen first, and the mechanical work lands last.
+The spec's 16 phases were a feature checklist, not a work plan. Collapsed to three, split
+where the *kind* of work genuinely changes rather than where features differ.
 
-### A — App Spine  *(big, judgment-heavy)*
-Absorbs old phases 3 and 5.
-ViewModels for the existing views, app-wide state and navigation, dependency injection,
-the data-source switcher surfaced in-app, session handling with Keychain, and
-login/register/logout. **Nothing above this can be built twice cheaply**, which is why it
-goes first.
+### 1 — BUILD THE APP  *(the whole core product)*
+Old phases 3, 4, 5, 6, 7.
+App spine (ViewModels, DI, navigation, data-source switcher), auth with Keychain sessions,
+the map, the missing Search and Favorites tabs, detail views, offline persistence and events
+discovery.
 
-### B — Discovery  *(big)*
-Absorbs old phases 4, 6 and 7.
-Map with clustering and filters, the missing Search and Favorites tabs, detail views,
-offline caching and the persistence layer, events discovery. This is the product's core
-loop — "what can I do right now?" — and the thing the MVP is judged on.
+Done when a tourist can open the app, see what is around them, search and filter it, save
+places, and have all of it survive relaunch and a dead connection. **This is the MVP.**
+Everything else is additive.
 
-### C — Trips & Transactions  *(big)*
-Absorbs old phases 8, 9 and 11.
-Itinerary builder UI on the Core logic, bookings end to end, and the provider-independent
-payment state machine. Grouped because bookings and itineraries share the same
-server-validated write path; splitting them would mean designing that path twice.
+*Status: spine done. Auth UI, discovery UI and persistence remain.*
 
-### D — Content & Feedback  *(smaller, mechanical)*
-Absorbs old phases 10 and 12.
-Reviews and ratings, notification architecture. Both are CRUD and plumbing against patterns
-A–C will have already established.
+### 2 — TRANSACT & CONTRIBUTE
+Old phases 8, 9, 10, 11, 12.
+Itinerary builder on the Core logic, bookings end to end, the provider-independent payment
+state machine, reviews and ratings, notification architecture.
 
-### E — Harden & Ship  *(smaller, mechanical)*
-Absorbs old phases 13, 14, 15 and 16.
-Polish, accessibility, the seven user journeys, deployment config, final audit, and the five
-known open bugs (#3 images, #4 dead imageset, #5 dead Profile rows, #7 SpeechManager
-concurrency, #8 TourEvent formatting).
+Grouped because every item is a **server-validated write** by an authenticated user. They
+share one trust boundary and one write path; splitting them means designing that path
+several times.
+
+### 3 — SHIP IT
+Old phases 13, 14, 15, 16.
+Polish, accessibility, the seven user journeys, deployment, final audit, and the remaining
+known bugs (#3 images, #4 dead imageset, #5 dead Profile rows, #7 SpeechManager concurrency).
 
 ### Where to switch models
-**A–C need architectural judgment**: concurrency and actor isolation, offline conflict
-handling, payment state, and the first-compile debugging session — which will be
-substantial, since ~4,400 lines of `Core` alone have never been read by a compiler.
+Phase 1 and the payment/offline design in phase 2 carry the decisions that are expensive to
+reverse — actor isolation, conflict handling, trust boundaries. **Phase 3 is almost entirely
+mechanical** and is the natural point to move to a cheaper model.
 
-**D and E are execution against settled patterns** and are well suited to a cheaper model.
-The natural switch point is **after C is compiling and green**.
-
-Caveat worth stating: the first successful build is likely to surface a batch of errors at
-once (Bug #7 almost certainly among them). That debugging is judgment-heavy even though it
-arrives late, so it is better done before switching, not after.
+The exception is the **first successful compile**. Nothing in this repository has ever been
+built, so that session will surface a batch of errors at once across ~4,400 unread lines of
+`Core` alone. It is judgment-heavy despite arriving late, and is better done before
+switching rather than after.
 
 ## 7. CHANGE LOG
 
