@@ -26,10 +26,26 @@ Swift written here is *unverified* until it is built on macOS or a macOS CI runn
 Any phase below marked "written, unverified" has NOT met the project's own Definition of Done (§48),
 which requires "project compiles" and "affected tests pass".
 
-**RESOLUTION CHOSEN: macOS CI.** `.github/workflows/ci.yml` now builds and tests on a
-`macos-latest` runner on every push to `main`. **The first push has not happened yet**, so
-no Swift in this repo has ever been compiled. Until CI runs green once, every Swift
-deliverable is **draft pending first compile**. Later work moves to a Mac.
+**RESOLUTION ATTEMPTED: macOS CI — CURRENTLY BLOCKED.**
+`.github/workflows/ci.yml` was written, pushed on 2026-08-15, and **could not run**.
+GitHub reports, on https://github.com/Rashica07/LarioGo/actions:
+
+> GitHub Actions workflows can't be executed on this repository.
+> Your account's billing is currently locked. Please update your payment information.
+
+Run #1 shows "Startup failure" with no job graph. This is **not** a workflow defect —
+the file passes `actionlint` clean, contains no BOM, no CRLF, no tabs, and valid UTF-8.
+No job ran, not even the free Ubuntu one, because the block is account-wide.
+
+**Nothing in this repository has ever been compiled.** Every Swift deliverable is a
+**draft pending first compile**.
+
+**Unblocking requires a human (payment details — I will not handle those):**
+1. Update payment information on GitHub → the existing workflow should then run as-is.
+2. Make the repo public → Actions minutes are free for public repos, but this is
+   commercial source; probably not acceptable.
+3. Use another CI with a free macOS tier (Codemagic, Bitrise) — needs a new config.
+4. Build on a Mac and report errors back.
 
 ### What CAN be verified on Windows (and is, automatically)
 `tools/check_project.py` validates project structure, scheme wiring, and asset references.
@@ -42,8 +58,10 @@ build before Swift is even reached.
 
 ## 1. CURRENT PHASE
 
-**Phase 0 — Audit: COMPLETE.** Build blockers fixed, verification pipeline established.
-**Next: Phase 1 — backend foundation**, pending a green first CI run.
+**Phase 0 — Audit: COMPLETE.** Build blockers fixed.
+**Phase 1 — Backend foundation: WRITTEN, UNCOMPILED.** Vapor + Fluent + PostgreSQL + JWT
+auth + health endpoint + 15 tests exist under `Backend/`. None of it has been built.
+**Blocked on the CI billing issue in §0 before Phase 2.**
 
 ---
 
@@ -225,10 +243,10 @@ Debug and Release configurations.
 |---|---|
 | Frontend UI shell | Partial — 8 views built, static data, no states |
 | Frontend architecture | **Not started** — no VMs, no services, no networking |
-| Backend | **Not started** |
-| Database | **Not started** |
-| API | **Not started** |
-| Auth | **Not started** |
+| Backend | Phase 1 written (Vapor/Fluent/JWT, health, auth). **Never compiled.** |
+| Database | `users` table + migration written. Never run against Postgres. |
+| API | `/health`, `/api/v1/auth/{register,login,me}` written. Never served a request. |
+| Auth | JWT + bcrypt + bearer authenticator written. **Never executed.** |
 | Favorites | **Not started** |
 | Search | **Not started** |
 | Bookings | UI only, no persistence |
@@ -236,19 +254,19 @@ Debug and Release configurations.
 | Itineraries | Local-only, **broken by Bug #6** |
 | Offline | UserDefaults itineraries only |
 | Notifications | **Not started** |
-| Tests | 12 seed-integrity tests written; test targets restored. **Never executed** (no toolchain) |
-| Deployment | **Not started** |
-| Last successful build | **Never.** CI defined but not yet run — first push pending. |
-| Last successful test run | **Never.** Structural checks pass locally; Swift unverified. |
+| Tests | 12 iOS seed tests + 15 backend auth/health tests. **None ever executed.** |
+| Deployment | Dockerfile + docker-compose + deploy docs written. Never built. |
+| Last successful build | **Never.** CI pushed 2026-08-15 and rejected: billing locked. |
+| Last successful test run | **Never.** Only the Python tooling checks pass locally. |
 
 ---
 
 ## 6. NEXT TASKS (priority order)
 
-1. **Push and get CI green.** Nothing below is trustworthy until the first macOS build runs.
-   Expect real compile errors on the first attempt — Bug #7 in particular.
-2. **Phase 1** — Vapor package, Fluent models, migrations, JWT auth, `/health`.
-3. **Phase 2** — attractions/restaurants/events endpoints + filtering + geosearch + seed data.
+1. **Unblock CI (needs you).** See §0. Until then nothing below can be verified, and the
+   backlog of unverified Swift keeps growing. Expect real compile errors on the first
+   successful run — Bug #7 in particular.
+2. **Phase 2** — attractions/restaurants/events endpoints + filtering + geosearch + seed data.
 4. **Phase 3** — iOS service protocols, API client, `Codable` models (note: `Site` is not
    currently `Codable`), wire existing views to ViewModels.
 5. **Phase 4** — Search tab + Favorites tab (missing from navigation entirely).
@@ -257,6 +275,15 @@ Debug and Release configurations.
 ---
 
 ## 7. CHANGE LOG
+
+- **2026-08-15 (later)** — Phase 1 backend foundation written under `Backend/`:
+  Vapor package, `configure` (fail-fast on a missing/weak `JWT_SECRET`, deny-all CORS in
+  production), `User` model + unique-email migration, JWT `UserToken` + bearer
+  authenticator, `AuthController` (register/login/me), `/health`, 15 tests, Dockerfile,
+  docker-compose, `.env.example`, README. Added a Linux backend CI job.
+  Verified the workflow with `actionlint` (clean) and re-tested the payment-SDK gate
+  against `Backend/`. Pushed — **CI rejected, account billing locked.** Stopped
+  Phase 2 rather than pile more unverified code on top.
 
 - **2026-08-15** — Phase 0 audit. Read every source file. Confirmed no backend of any kind
   exists and zero third-party payment SDKs (now a hard CI gate).

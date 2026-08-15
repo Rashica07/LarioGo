@@ -1,0 +1,53 @@
+# Local development stack. Not a production deployment.
+#
+#   docker compose up db          # Postgres only, run the API from Xcode
+#   docker compose run --rm migrate
+#   docker compose up app
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lariogo
+      POSTGRES_PASSWORD: lariogo
+      POSTGRES_DB: lariogo
+    ports:
+      - "5432:5432"
+    volumes:
+      - lariogo_db:/var/lib/postgresql/data
+    healthcheck:
+      # The app must not start against a database that is still initialising.
+      test: ["CMD-SHELL", "pg_isready -U lariogo -d lariogo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment: &app_env
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: lariogo
+      DATABASE_PASSWORD: lariogo
+      DATABASE_NAME: lariogo
+      DATABASE_DISABLE_TLS: "true"
+      # Local-only value. Production must supply a real secret via the host's
+      # secret manager — never a compose file.
+      JWT_SECRET: local-development-only-secret-key-min-32-chars
+      LOG_LEVEL: debug
+    ports:
+      - "8080:8080"
+
+  migrate:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment: *app_env
+    command: ["migrate", "--yes"]
+
+volumes:
+  lariogo_db:

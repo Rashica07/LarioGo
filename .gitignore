@@ -10,7 +10,9 @@ TestResults.xcresult/
 # --- Swift Package Manager ---
 .build/
 .swiftpm/
-Package.resolved
+# Package.resolved is intentionally NOT ignored: Backend is a deployable
+# service, so pinned dependency versions belong in the repo for reproducible
+# CI and production builds. Commit it once a machine with Swift resolves it.
 
 # --- Secrets / local config ---
 .env
