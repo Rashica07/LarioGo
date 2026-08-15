@@ -9,7 +9,7 @@ final class PlaceTests: XCTestCase {
     let leccoLon = 9.3931
 
     override func setUp() async throws {
-        app = Application(.testing)
+        app = try await Application.make(.testing)
         try await configure(app)
         // Replace seed content with a controlled fixture set so assertions are
         // exact rather than dependent on however much seed data exists.
@@ -18,7 +18,8 @@ final class PlaceTests: XCTestCase {
     }
 
     override func tearDown() async throws {
-        app.shutdown()
+        // Async counterpart of `Application.make`.
+        try await app.asyncShutdown()
         app = nil
     }
 

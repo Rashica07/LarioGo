@@ -5,14 +5,15 @@ final class AuthTests: XCTestCase {
     var app: Application!
 
     override func setUp() async throws {
-        app = Application(.testing)
+        app = try await Application.make(.testing)
         try await configure(app)
         // Start from a clean slate so tests do not depend on execution order.
         try await User.query(on: app.db).delete()
     }
 
     override func tearDown() async throws {
-        app.shutdown()
+        // Async counterpart of `Application.make`.
+        try await app.asyncShutdown()
         app = nil
     }
 

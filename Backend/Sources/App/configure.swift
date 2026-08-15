@@ -27,20 +27,24 @@ enum ConfigurationError: Error, CustomStringConvertible {
 public func configure(_ app: Application) async throws {
     // MARK: Database
     if let databaseURL = Environment.get("DATABASE_URL") {
-        // Managed hosts (Railway, Fly, Heroku) inject a single URL. Their certs
-        // are not in the container trust store, so verification is relaxed for
-        // the TLS handshake only — the connection is still encrypted.
-        var tlsConfiguration = TLSConfiguration.makeClientConfiguration()
-        tlsConfiguration.certificateVerification = .none
-        try app.databases.use(
-            .postgres(
-                url: databaseURL,
-                tlsConfiguration: Environment.get("DATABASE_DISABLE_TLS") == "true"
-                    ? nil
-                    : tlsConfiguration
-            ),
-            as: .psql
-        )
+        // Managed hosts (Railway, Fly, Render) inject a single URL.
+        //
+        // `SQLPostgresConfiguration(url:)` parses `sslmode` out of the URL, so
+        // TLS is driven by the connection string rather than hardcoded here.
+        // There is no `.postgres(url:tlsConfiguration:)` in fluent-postgres-driver 2.x.
+        var configuration = try SQLPostgresConfiguration(url: databaseURL)
+
+        // Managed Postgres certificates are usually not in the container trust
+        // store. Verification is relaxed for the handshake only — the
+        // connection is still encrypted — and only when TLS was not explicitly
+        // disabled for a local database.
+        if Environment.get("DATABASE_DISABLE_TLS") != "true" {
+            var tlsConfiguration = TLSConfiguration.makeClientConfiguration()
+            tlsConfiguration.certificateVerification = .none
+            configuration.coreConfiguration.tls = try .require(.init(configuration: tlsConfiguration))
+        }
+
+        app.databases.use(.postgres(configuration: configuration), as: .psql)
     } else {
         app.databases.use(
             .postgres(
