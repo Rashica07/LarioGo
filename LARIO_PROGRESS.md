@@ -47,15 +47,41 @@ No job ran, not even the free Ubuntu one, because the block is account-wide.
 3. Use another CI with a free macOS tier (Codemagic, Bitrise) — needs a new config.
 4. Build on a Mac and report errors back.
 
-### Attempt to get a local Swift compiler — FAILED (disk space)
+### Repo made public — did NOT unblock CI
+On 2026-08-15 the repo was switched to public on the assumption that Actions is free for
+public repositories. A run started, then failed in 3 seconds with the annotation:
+
+> The job was not started because your account is locked due to a billing issue.
+
+**The lock is account-level, not repository-level.** Public visibility bought nothing here.
+Given the stated legal reason for keeping this source private, the repo can safely be
+switched back to private — it changes nothing about CI either way.
+Only resolving the GitHub account billing will start any job.
+
+A secret audit was run once the repo went public: no `.env` tracked (only `.env.example`
+with an empty `JWT_SECRET`), and no keys, tokens or private keys anywhere in the full git
+history. The only literals are clearly-labelled local-dev and CI-only placeholders.
+
+### Attempt to get a local Swift compiler — FAILED (twice)
 Tried `winget install Swift.Toolchain` (6.3.3) on 2026-08-15. Visual Studio Build Tools 2026
 and Windows SDK 10.0.26100 are present, so prerequisites were fine. Six of seven MSIs
 installed; **`windows.msi` — the Swift Windows SDK, the one component needed to compile
 anything — failed with 1603 / 0x80070643** and the bundle rolled back, removing Swift
 entirely.
 
-Root cause: **drive C: has only 5.1 GB free.** The toolchain needs roughly 5–8 GB.
-D: (104 GB free) and E: (70 GB free) are both fixed drives.
+Retried with the standalone 1.7 GB installer and `INSTALLROOT=D:\Swift` to dodge the space
+problem. **The bundle ignored `INSTALLROOT`** — the burn log shows every component MSI still
+receiving `INSTALLROOT="C:\Users\r-oberti\AppData\Local\Programs\Swift"`. `windows.msi`
+failed instantly again (in the same second it started), which points at an MSI disk-cost
+check rather than a copy failing part-way through.
+
+Root cause remains: **drive C: has only 5.1 GB free** and the Swift Windows SDK component
+needs several GB. D: (104 GB) and E: (70 GB) are fixed drives with room, but relocating a
+per-user Swift install there needs a mechanism I have not found.
+
+Next to try, in order: free space on C: and retry; or find the supported way to relocate the
+install. The installer is cached at `D:\SwiftInstall\` (1.7 GB) so a retry will not
+re-download.
 
 Worth noting even if this is fixed: Swift-on-Windows would let us compile and test
 **`LarioCore` only**. It cannot build the iOS app (SwiftUI/MapKit are Apple-only) or the
