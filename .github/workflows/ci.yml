@@ -143,6 +143,15 @@ jobs:
     runs-on: macos-latest
     needs: project-integrity
     timeout-minutes: 40
+    # macOS runners bill at 10x, so a full iOS build costs roughly 120 minutes
+    # against the monthly allowance while the Linux jobs cost about 14 between
+    # them. Run it where it matters - pull requests into main, direct pushes to
+    # main, and on demand - rather than on every commit to a feature branch.
+    if: >-
+      github.event_name == 'pull_request' ||
+      github.ref == 'refs/heads/main' ||
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.head_commit.message, '[ios]')
 
     steps:
       - uses: actions/checkout@v4
