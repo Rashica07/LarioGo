@@ -64,6 +64,20 @@ struct CreateBusinessDomain: AsyncMigration {
             .case("territorialCampaign")
             .create()
 
+        let enquiryKind = try await database.enum("enquiry_kind")
+            .case("demo")
+            .case("sponsorship")
+            .case("territory")
+            .case("integration")
+            .create()
+
+        let enquiryState = try await database.enum("enquiry_state")
+            .case("received")
+            .case("contacted")
+            .case("closed")
+            .case("discarded")
+            .create()
+
         let sponsorshipState = try await database.enum("sponsorship_state")
             .case("draft")
             .case("pendingReview")
@@ -217,10 +231,28 @@ struct CreateBusinessDomain: AsyncMigration {
             .field("created_at", .datetime)
             .field("updated_at", .datetime)
             .create()
+
+        // MARK: Enquiries
+        // No foreign keys: whoever sends one is not a customer yet, and may
+        // never become one.
+        try await database.schema(Enquiry.schema)
+            .id()
+            .field("kind", enquiryKind, .required)
+            .field("state", enquiryState, .required)
+            .field("name", .string, .required)
+            .field("email", .string, .required)
+            .field("organization_name", .string)
+            .field("phone", .string)
+            .field("message", .string)
+            .field("source_path", .string)
+            .field("created_at", .datetime)
+            .field("updated_at", .datetime)
+            .create()
     }
 
     func revert(on database: Database) async throws {
         // Reverse order: children before parents, tables before their enums.
+        try await database.schema(Enquiry.schema).delete()
         try await database.schema(Sponsorship.schema).delete()
         try await database.schema(Reservation.schema).delete()
         try await database.schema(BusinessProfile.schema).delete()
@@ -229,6 +261,8 @@ struct CreateBusinessDomain: AsyncMigration {
         try await database.schema(OrganizationMembership.schema).delete()
         try await database.schema(Organization.schema).delete()
 
+        try await database.enum("enquiry_state").delete()
+        try await database.enum("enquiry_kind").delete()
         try await database.enum("sponsorship_state").delete()
         try await database.enum("sponsorship_kind").delete()
         try await database.enum("reservation_state").delete()

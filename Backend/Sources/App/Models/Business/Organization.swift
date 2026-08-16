@@ -120,7 +120,12 @@ final class Organization: Model, @unchecked Sendable {
         var lastWasSeparator = false
         for character in folded {
             if character.isLetter || character.isNumber {
-                out.append(Character(character.lowercased()))
+                // `Character(_ :String)` va in trap se la stringa non contiene
+                // esattamente un carattere, e alcune minuscole ne producono due:
+                // "ß" diventa "ss". Un'attività con una ß nel nome — non rara
+                // fra i clienti di lingua tedesca sul lago — avrebbe fatto
+                // cadere il processo durante la registrazione.
+                out += String(character).lowercased()
                 lastWasSeparator = false
             } else if !lastWasSeparator && !out.isEmpty {
                 out.append("-")

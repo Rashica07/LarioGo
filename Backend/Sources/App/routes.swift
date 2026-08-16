@@ -33,6 +33,9 @@ func routes(_ app: Application) throws {
     // Internal claim review, guarded by InternalStaff rather than by any
     // business role.
     try v1.register(collection: ClaimReviewController())
+    // Richieste di dimostrazione e sponsorizzazione. L'unica scrittura non
+    // autenticata del servizio: le difese contro l'abuso stanno nel controller.
+    try v1.register(collection: EnquiryController())
 }
 
 struct HealthResponse: Content {
