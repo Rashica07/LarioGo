@@ -26,6 +26,13 @@ func routes(_ app: Application) throws {
     // Discovery content is readable without authentication: a tourist should be
     // able to open the app and see what is around them before making an account.
     try v1.register(collection: PlaceController())
+    // The business portal. Every route resolves the caller's membership before
+    // touching anything, and none of them reach outside this service's own
+    // tables — cross-product traffic goes through the Traversar API layer.
+    try v1.register(collection: BusinessController())
+    // Internal claim review, guarded by InternalStaff rather than by any
+    // business role.
+    try v1.register(collection: ClaimReviewController())
 }
 
 struct HealthResponse: Content {

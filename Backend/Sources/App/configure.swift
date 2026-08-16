@@ -129,6 +129,10 @@ private func configureRoutesAndMigrations(_ app: Application) async throws {
     // production — unlike the invented sample content, this is genuine data and
     // is what real deployments should serve.
     app.migrations.add(ImportOSMPlaces())
+    // Business domain: organisations, memberships, claims, profile overlays,
+    // reservations and sponsorships. Added after the places migration because
+    // several of its tables reference `places`.
+    app.migrations.add(CreateBusinessDomain())
 
     if Environment.get("AUTO_MIGRATE") == "true" || app.environment == .testing {
         try await app.autoMigrate()
